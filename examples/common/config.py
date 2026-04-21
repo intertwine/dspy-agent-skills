@@ -45,6 +45,16 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
 def get_task_lm(model: str | None = None, **overrides):
     """Return a dspy.LM for the task model, wired to OpenRouter."""
     import dspy
@@ -85,4 +95,15 @@ def configure_dspy(model: str | None = None, **overrides) -> "object":
 
     lm = get_task_lm(model, **overrides)
     dspy.configure(lm=lm, track_usage=True)
+    return lm
+
+
+def get_example_num_threads(default: int = 1) -> int:
+    """Return example parallelism, overridable via env for rate-limited runs."""
+    return max(1, _env_int("DSPY_EXAMPLE_NUM_THREADS", default))
+
+
+def harden_example_lm(lm, default_num_retries: int = 12):
+    """Apply conservative retry settings for flaky or rate-limited providers."""
+    lm.num_retries = max(0, _env_int("DSPY_EXAMPLE_NUM_RETRIES", default_num_retries))
     return lm

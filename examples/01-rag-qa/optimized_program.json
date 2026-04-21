@@ -4,7 +4,7 @@
     "train": [],
     "demos": [],
     "signature": {
-      "instructions": "You are given a set of retrieved passages. Each passage is prefixed with a label in square brackets, e.g., [mercury], [pluto], etc. The label is the passage ID. Your task is to answer the user's question using only information found in these passages.\n\nOutput must contain three parts:\n\n1. **reasoning** – a brief explanation of where the answer is located, explicitly naming the passage ID(s) that contain the relevant information.\n2. **answer** – a concise, complete statement that directly answers the question. Include any necessary units or qualifiers so the answer is self‑contained (e.g., “2100 km/h” is too terse; instead write “Winds on Neptune can reach 2100 km/h”). Do not add facts that are not present in the cited passages.\n3. **citations** – a Python‑style list of the passage IDs (without the surrounding brackets) that support the answer. Example: ['mercury'] or ['io', 'earth']. Only list IDs that actually appear in the context and that contain the evidence used.\n\nImportant rules:\n- Cite only the passage IDs exactly as they appear inside the brackets in the context; do not include the brackets themselves in the citations list.\n- If the answer requires information from multiple passages, include all relevant IDs in the citations list.\n- Keep the answer concise but sufficiently detailed to be a full sentence; avoid overly terse responses that consist of only a number or fragment.\n- Do not invent or infer information beyond what is explicitly stated in the cited passages.",
+      "instructions": "Given a set of retrieved passages, each labeled with a unique ID (e.g., [id]), answer the question by generating a single, self-contained, grammatically complete sentence that precisely reflects the factual information present in the context. The response must strictly adhere to the following rules:\n\n1. **Verbatim Factual Extraction**: Extract and include exact numerical values, units, and key facts **exactly as written** in the passage. Do not rephrase, reformat, or convert units (e.g., \"3474 km\" must not become \"3474 kilometers\", \"464°C\" must not become \"464 degrees Celsius\", \"2100 km/h\" must not become \"2100 kilometers per hour\"). Numbers and units must be copied verbatim from the context, including symbols like \"°\", \"km\", \"h\", \"days\", \"years\", etc.\n\n2. **Precise Citation**: Cite **only the passage IDs** that are necessary and sufficient to support the factual claim. Do not include redundant, overlapping, or indirectly related IDs—even if they contain related information. For example, if the answer is about a moon’s diameter, only cite the passage that contains the exact value; do not add IDs of other moons or planets unless they directly contribute to the claim.\n\n3. **Self-Contained Complete Sentence**: The answer must be a standalone, fully complete sentence that conveys the entire factual response without relying on external knowledge or context. Never return fragments, lists, or incomplete phrases—even if the answer is short (e.g., \"2006\" is unacceptable; \"Pluto was reclassified in 2006\" is required).\n\n4. **Strict Exclusivity to Provided Context**: Answer only using facts explicitly stated in the provided passages. If the answer is not directly supported by any passage, do not speculate, infer, or suggest alternatives. If multiple passages contain relevant data, choose the one(s) that contain the exact, direct answer. Do not merge information from multiple passages unless the source IDs are both necessary and directly supportive.\n\n5. **Avoid Paraphrasing of Quantitative Data**: Even minor rewording of numbers or units (e.g., replacing \"km\" with \"kilometers\") is penalized. The model must preserve the original formatting of quantitative expressions exactly as written in the source.\n\n6. **Consistent Formatting of Output**:\n   - Answer: [Complete, self-contained sentence using verbatim values from the context]\n   - Citations: [‘exact_id’]\n\n7. **Error Prevention Based on Feedback Patterns**:\n   - If the context contains a number like \"3474 km\", the answer must include \"3474 km\" — not \"3474 kilometers\".\n   - If a passage states \"2100 km/h\", the answer must use \"2100 km/h\", not \"2100 kilometers per hour\".\n   - When a planet’s moon count is given (e.g., \"146 known moons\"), the number must be quoted verbatim — do not round, rephrase, or convert.\n   - Do not include the names of unrelated celestial bodies unless explicitly required by the question and supported by a cited passage.\n\nUse this format for all responses. Failure to follow these rules — especially verbatim use of numerical values and units, over-citation, or generating incomplete answers — will result in failure to meet quality standards.",
       "fields": [
         {
           "prefix": "Context:",
@@ -15,7 +15,7 @@
           "description": "${question}"
         },
         {
-          "prefix": "Reasoning: Let's think step by step in order to",
+          "prefix": "Reasoning:",
           "description": "${reasoning}"
         },
         {
@@ -33,7 +33,7 @@
   "metadata": {
     "dependency_versions": {
       "python": "3.10",
-      "dspy": "3.1.3",
+      "dspy": "3.2.0",
       "cloudpickle": "3.1"
     }
   }

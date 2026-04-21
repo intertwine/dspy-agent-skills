@@ -1,18 +1,22 @@
 # DSPy Agent Skills — Examples
 
-Three runnable end-to-end examples that exercise the skills against real, reproducible tasks. Each runs on **free OpenRouter models**, burns **$0** to reproduce, and ships with committed baseline vs. GEPA-optimized numbers.
+Three runnable end-to-end examples that exercise the skills against real, reproducible tasks. The current committed artifacts mix refreshed DSPy `3.2.0` reruns with one retained historical DSPy `3.1.3` artifact where the current OpenRouter model sweep either saturated immediately or became too unstable for a credible typed-output rerun.
 
-The committed metrics and saved `optimized_program.json` artifacts below were produced on DSPy `3.1.3`. The current branch keeps those live results as historical artifacts while smoke-testing the example codepaths and skill docs against DSPy `3.2.0`.
+## Current committed artifacts
 
-## Committed results
+| Example | Artifact DSPy | Task LM | Reflection LM | Baseline | Optimized | Δ | Status |
+|---|---|---|---|---:|---:|---:|---|
+| [01-rag-qa](01-rag-qa/) | 3.2.0 | `openrouter/mistralai/ministral-3b-2512` | `openrouter/qwen/qwen3-30b-a3b-instruct-2507` | 75.77 | **100.00** | **+24.23** | Refreshed on 2026-04-21 |
+| [02-math-reasoning](02-math-reasoning/) | 3.2.0 | `openrouter/mistralai/ministral-3b-2512` | `openrouter/qwen/qwen3-30b-a3b-instruct-2507` | 85.00 | **93.33** | **+8.33** | Refreshed on 2026-04-21 |
+| [03-invoice-extraction](03-invoice-extraction/) | 3.1.3 | `openrouter/liquid/lfm-2.5-1.2b-instruct:free` | `openrouter/nvidia/nemotron-3-super-120b-a12b:free` | 0.833 | **0.931** | **+0.098** | Historical artifact retained |
 
-| Example | Task LM | Baseline | Optimized | Δ | Mutations accepted |
-|---|---|---:|---:|---:|---:|
-| [01-rag-qa](01-rag-qa/) | GLM 4.5 Air (32B) | 81.15 | **100.00** | **+18.85** | 1 |
-| [02-math-reasoning](02-math-reasoning/) | Liquid LFM 2.5 (1.2B) | 45.00 | **70.00** | **+25.00** | 5 |
-| [03-invoice-extraction](03-invoice-extraction/) | Liquid LFM 2.5 (1.2B) | 0.833 | **0.931** | **+0.098** | 5 |
+The `01` and `02` reruns were done with DSPy `3.2.0`, `auto="light"`, `seed=0`, and a faster paid model pair that still left real GEPA headroom. `03` intentionally remains on its historical artifact: the DSPy `3.2.0` probe sweep found either saturation (`gemma-3-4b-it`, `ministral-3b-2512`, `ministral-8b-2512`) or unstable typed-output behavior (`llama-3.2-1b-instruct`).
 
-All runs used `auto="light"`, `seed=0`, reflection LM `nvidia/nemotron-3-super-120b-a12b:free`. See each example's `README.md` for task description, metric details, and reproduction.
+## Version comparisons
+
+- [01-rag-qa/version_comparison.md](01-rag-qa/version_comparison.md)
+- [02-math-reasoning/version_comparison.md](02-math-reasoning/version_comparison.md)
+- [03-invoice-extraction/version_comparison.md](03-invoice-extraction/version_comparison.md)
 
 ## What these exercise
 
@@ -27,8 +31,9 @@ All runs used `auto="light"`, `seed=0`, reflection LM `nvidia/nemotron-3-super-1
 ```bash
 cp .env.example .env         # fill in OPENROUTER_API_KEY
 cd examples/01-rag-qa
-uv run --with dspy --with python-dotenv --with rank-bm25 python run.py --baseline
-uv run --with dspy --with python-dotenv --with rank-bm25 python run.py --optimize --auto light
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with rank-bm25 python run.py --dry-run
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with rank-bm25 python run.py --baseline
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with rank-bm25 python run.py --optimize --auto light
 ```
 
 Each `run.py` supports:
@@ -37,17 +42,15 @@ Each `run.py` supports:
 - `--eval path/to/program.json` — score a saved program
 - `--dry-run` — construct everything without calling an LM (offline smoke test)
 
-## Model choice matters
+## Model choice still matters
 
-These examples were validated against multiple OpenRouter free models. The committed task-LM choice per example is deliberate:
+The refreshed DSPy `3.2.0` artifacts use a different task/reflection pair than the original DSPy `3.1.3` free-tier runs, so the comparisons are intentionally documented per example instead of pretending they are apples-to-apples. The current practical takeaways:
 
-| Role | Default | Why |
-|---|---|---|
-| Task LM (ex01) | `openrouter/z-ai/glm-4.5-air:free` | GLM 4.5 Air handles retrieval+synthesis well but flubs citation format — real GEPA headroom |
-| Task LM (ex02, ex03) | `openrouter/liquid/lfm-2.5-1.2b-instruct:free` | Stronger models saturate these tasks (baseline > 0.95); 1.2B Liquid creates real failure-gradient for GEPA to improve on |
-| Reflection LM (all) | `openrouter/nvidia/nemotron-3-super-120b-a12b:free` | 120B MoE — strong critic that can produce specific, actionable mutations |
+- `openrouter/mistralai/ministral-3b-2512` was the best "small but still improvable" paid task model for `01` and `02`: much faster than the older free-tier stack, but still weak enough to show GEPA movement.
+- Invoice extraction is now hard to benchmark honestly with current paid small models. Modern 3B-8B models saturated the task, while the 1B fallback that left headroom produced too many malformed typed outputs to trust as a release artifact.
+- The examples remain configurable. You can still override task/reflection models with env vars and rerun the exact same scripts.
 
-**Override via env vars** — no code edits needed:
+**Override via env vars**:
 
 ```bash
 export DSPY_TASK_MODEL=openrouter/arcee-ai/trinity-large-preview:free
@@ -59,23 +62,38 @@ export DSPY_TASK_MODEL=openrouter/mistralai/ministral-3b-2512            # $0.10
 export DSPY_REFLECTION_MODEL=openrouter/qwen/qwen3-235b-a22b-thinking-2507
 ```
 
-**Rate-limit reality**: free tier is 20 req/min and 2000 req/day. GEPA with `auto="light"` generates 500–2000 LM calls. A single full run may hit the daily cap. `run.py` files set `num_threads=1` and `num_retries=12` to stay polite and survive transient 429s. If you hit the daily cap, either wait for reset or swap to a paid fallback.
+`run.py` now centralizes `num_threads` and retry hardening in `examples/common/config.py`, with `DSPY_EXAMPLE_NUM_THREADS` and `DSPY_EXAMPLE_NUM_RETRIES` overrides when you need to slow a run down.
 
-## Reproducing the committed results
+## Reproducing the committed artifacts
 
-Each example commits a `results.json` and `results.md` with the baseline and optimized scores from the author's run. To reproduce:
+Each example commits a `results.json` and `results.md` with the baseline and optimized scores from the author's run. For an exact DSPy `3.2.0` rerun of the refreshed artifacts:
 
 ```bash
-# For example 01; adjust path/deps for 02 and 03.
 cd examples/01-rag-qa
-uv run --with dspy --with python-dotenv --with rank-bm25 python run.py --optimize --auto light --seed 0
+rm -rf gepa_logs
+env -u UV_EXCLUDE_NEWER \
+  DSPY_TASK_MODEL=openrouter/mistralai/ministral-3b-2512 \
+  DSPY_REFLECTION_MODEL=openrouter/qwen/qwen3-30b-a3b-instruct-2507 \
+  DSPY_EXAMPLE_NUM_THREADS=1 \
+  DSPY_EXAMPLE_NUM_RETRIES=8 \
+  uv run --with dspy==3.2.0 --with python-dotenv --with rank-bm25 \
+  python run.py --optimize --auto light --seed 0
 
-# The run overwrites the same results.json/results.md in the example dir.
-# Compare git-tracked baseline vs. your fresh run:
-git diff results.json
+cd ../02-math-reasoning
+rm -rf gepa_logs
+env -u UV_EXCLUDE_NEWER \
+  DSPY_TASK_MODEL=openrouter/mistralai/ministral-3b-2512 \
+  DSPY_REFLECTION_MODEL=openrouter/qwen/qwen3-30b-a3b-instruct-2507 \
+  DSPY_EXAMPLE_NUM_THREADS=1 \
+  DSPY_EXAMPLE_NUM_RETRIES=8 \
+  uv run --with dspy==3.2.0 --with python-dotenv \
+  python run.py --optimize --auto light --seed 0
+
+# Example 03 intentionally has no refreshed DSPy 3.2.0 artifact yet.
+# See 03-invoice-extraction/version_comparison.md for the probe sweep.
 ```
 
-Runs are single-seed (`seed=0`) by default; re-run with `--seed 1`, `--seed 2`, etc. for per-seed reproducibility. Multi-seed bootstrap intervals are not automated in `run.py` — if you want CI-style rigor, run the same command with multiple seeds and aggregate the JSON outputs yourself.
+Clear `gepa_logs/` before cross-version reruns; otherwise GEPA will resume from the previous saved state instead of starting from a clean DSPy `3.2.0` run.
 
 ## Why these examples?
 

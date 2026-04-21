@@ -19,6 +19,9 @@ and caught it in external review. Each guard maps to a specific pitfall:
    not the older `prompt_optimizer=` / `weight_optimizer=` pair.
 5. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
    that claim, and the dry-run smoke-test loop depends on it.
+6. Installation docs must reflect the actual example runtime path — DSPy
+   3.2.0, `OPENROUTER_API_KEY` for the end-to-end examples, and the
+   `UV_EXCLUDE_NEWER` troubleshooting note we validated locally.
 
 Rule 2's regex intentionally errs on the side of false positives. To allow an
 intentional anti-pattern mention, put one of the marker words (see
@@ -271,4 +274,55 @@ def test_usage_doc_lists_every_skill_example():
                 missing.append(f"{skill_dir.name}/{ex.name}")
     assert not missing, (
         "`docs/usage.md` does not list these example scripts: " + ", ".join(missing)
+    )
+
+
+# --- Rule 7: installation docs must match the repo's real example runtime ---
+
+
+def test_installation_doc_matches_example_runtime():
+    """The install guide should point example runners at DSPy 3.2.0 + OpenRouter."""
+    text = _read(DOCS / "installation.md")
+    assert "dspy-ai>=3.1.0" not in text, (
+        "`docs/installation.md` still mentions the stale `dspy-ai>=3.1.0` "
+        "example runtime requirement."
+    )
+    assert "OPENROUTER_API_KEY" in text, (
+        "`docs/installation.md` should mention `OPENROUTER_API_KEY` for the "
+        "end-to-end examples under `examples/`."
+    )
+    assert ('"dspy==3.2.0"' in text or "`dspy==3.2.0`" in text or "pip install dspy" in text), (
+        "`docs/installation.md` should show the tested DSPy 3.2.0 install path."
+    )
+    assert "UV_EXCLUDE_NEWER" in text, (
+        "`docs/installation.md` should document the `UV_EXCLUDE_NEWER` gotcha "
+        "that can hide DSPy 3.2.0 from `uv run --with dspy`."
+    )
+
+
+# --- Rule 8: release status docs must not claim all examples are still 3.1.3 -
+
+
+def test_example_status_docs_reflect_the_3_2_refresh():
+    """README docs should not claim every committed example artifact is still historical."""
+    checks = {
+        REPO / "README.md": (
+            "still come from the original DSPy `3.1.3` validation runs",
+            "full live re-benchmarking is the next release follow-up",
+        ),
+        REPO / "examples" / "README.md": (
+            "The current branch keeps those live results as historical artifacts",
+        ),
+    }
+
+    offenders: list[str] = []
+    for path, stale_phrases in checks.items():
+        text = _read(path)
+        for phrase in stale_phrases:
+            if phrase in text:
+                offenders.append(f"{path.relative_to(REPO)}: contains stale phrase `{phrase}`")
+
+    assert not offenders, (
+        "Release-status docs still describe the old pre-refresh example state:\n  "
+        + "\n  ".join(offenders)
     )

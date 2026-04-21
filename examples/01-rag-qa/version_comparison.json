@@ -1,0 +1,40 @@
+{
+  "example": "01-rag-qa",
+  "comparison_date": "2026-04-21",
+  "status": "refreshed",
+  "historical_artifact": {
+    "dspy": "3.1.3",
+    "task_model": "openrouter/z-ai/glm-4.5-air:free",
+    "reflection_model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "auto": "light",
+    "seed": 0,
+    "trainset_size": 15,
+    "valset_size": 10,
+    "baseline_score": 81.15,
+    "optimized_score": 100.0,
+    "improvement": 18.85,
+    "baseline_seconds": 0.2,
+    "optimize_seconds": 1695.4,
+    "eval_seconds": 0.0
+  },
+  "current_artifact": {
+    "dspy": "3.2.0",
+    "task_model": "openrouter/mistralai/ministral-3b-2512",
+    "reflection_model": "openrouter/qwen/qwen3-30b-a3b-instruct-2507",
+    "auto": "light",
+    "seed": 0,
+    "trainset_size": 15,
+    "valset_size": 10,
+    "baseline_score": 75.77,
+    "optimized_score": 100.0,
+    "improvement": 24.23,
+    "baseline_seconds": 22.8,
+    "optimize_seconds": 839.9,
+    "eval_seconds": 0.0
+  },
+  "notes": [
+    "The optimized score stayed at 100.0 across both artifacts.",
+    "The DSPy 3.2.0 rerun changed both the task and reflection models, so the metrics are not apples-to-apples with the historical DSPy 3.1.3 artifact.",
+    "The refreshed optimized_program.json metadata now records dspy 3.2.0."
+  ]
+}

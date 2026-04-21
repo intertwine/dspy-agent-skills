@@ -12,13 +12,20 @@ DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, 
 - Updated `dspy-rlm-module` for DSPy 3.2.0's `max_output_chars=10_000` default and kwargs-only tool dispatch.
 - Updated `dspy-gepa-optimizer` to explain the new BetterTogether chaining model while keeping plain GEPA as the default recommendation.
 - Added a regression guard against stale BetterTogether constructor guidance and flipped the RLM default guard to the 3.2.0 value.
-- Kept the committed live example artifacts as historical DSPy 3.1.3 runs; the next follow-up is full 3.2.x live re-benchmarking.
+- Refreshed `examples/01-rag-qa` and `examples/02-math-reasoning` with clean DSPy 3.2.0 live reruns, and added per-example `version_comparison.{md,json}` files to make the old-vs-new story explicit.
+- Kept `examples/03-invoice-extraction` on its historical DSPy 3.1.3 artifact, with the 3.2.0 probe sweep documented instead of forcing a misleading saturated or unstable rerun.
+- Validated the install path end to end, including `scripts/install.sh --dry-run`, a temp-`HOME` install, and new guidance for `UV_EXCLUDE_NEWER` when `uv` hides DSPy 3.2.0.
 
 ### Validation
 
-- `uv run --with pytest python -m pytest tests/ -v` → `80 passed`
+- `uv run --with pytest python -m pytest tests/ -v` → full suite passed
 - All 6 skill examples executed via `--dry-run` under DSPy 3.2.0
 - All 3 end-to-end examples executed via `--dry-run` under DSPy 3.2.0
+- Live reruns under DSPy 3.2.0:
+  - `examples/01-rag-qa` → `75.77 -> 100.00` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/02-math-reasoning` → `85.00 -> 93.33` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/03-invoice-extraction` → probe sweep recorded saturation or instability; historical artifact retained
+- `scripts/install.sh --dry-run` and a temp-`HOME` install both matched the documented dual-target install flow
 - During release prep, local `uv run --with dspy` still resolved DSPy `3.1.3` on this machine, so the 3.2.0 smoke tests were run in an isolated environment installed from the official 3.2.0 wheel.
 
 ## v0.1.0 — 2026-04-19

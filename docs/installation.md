@@ -70,8 +70,29 @@ In Codex, invoke explicitly with `$dspy-fundamentals` or let the description mat
 ## Requirements
 
 - **For the skills themselves**: nothing beyond Claude Code or Codex CLI.
-- **For running the example scripts**: Python 3.10+, `uv`, `pip install dspy-ai>=3.1.0`, plus an LM provider API key (e.g. `OPENAI_API_KEY`).
+- **For running the end-to-end examples under `examples/`**: Python 3.10+, `uv` or `pip`, DSPy `3.2.0`, `python-dotenv`, task-specific extras like `rank-bm25`/`pydantic`, and an `OPENROUTER_API_KEY` loaded from `.env`.
+- **For running the smaller skill-local `example_*.py` smoke tests**: any LM provider that matches the example's `--model` string is fine (for example `OPENAI_API_KEY` with `openai/...` models).
 - **For the `dspy-rlm-module` examples**: [Deno](https://deno.land) installed (required by DSPy's default PythonInterpreter / Pyodide WASM sandbox).
+
+## Reproducing the tested DSPy 3.2.0 environment
+
+The official DSPy install remains:
+
+```bash
+python -m pip install "dspy==3.2.0"
+```
+
+If you prefer `uv`, the exact command path we validated for this repo's example runs is:
+
+```bash
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv python -c 'import dspy; print(dspy.__version__)'
+```
+
+Why the extra prefix? On this repo's April 21, 2026 DSPy 3.2.0 refresh, the local machine had `UV_EXCLUDE_NEWER=7 days` set globally. That made `uv run --with dspy` resolve DSPy `3.1.3` even though PyPI already had `3.2.0`. If your `uv` commands unexpectedly resolve an older DSPy:
+
+- unset `UV_EXCLUDE_NEWER` for that command, as above
+- or wait until the exclude-newer window passes
+- or fall back to `python -m pip install "dspy==3.2.0"` in a local virtualenv
 
 ## Upgrading
 

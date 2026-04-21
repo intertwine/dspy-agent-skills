@@ -13,11 +13,27 @@ Extract a **Pydantic-typed** `InvoiceRecord` from unstructured invoice text — 
 - **GEPA mode**: `auto="light"`, seed=0
 - **Trainset**: 20 · **valset**: 9
 - **Runtime**: ~36 min on free tier (exhausted OpenRouter's 2000 req/day quota at iter 24 of 25)
-- **Artifact**: `optimized_program.json`
+- **Artifact**: `optimized_program.json` (historical DSPy `3.1.3` metadata)
+- **Comparison**: [`version_comparison.md`](version_comparison.md)
 
 GEPA accepted **5 mutations** (candidate pool 6). Candidate 5 at iteration 22 landed the best full-valset aggregate of 0.931.
 
 > **Note on the final re-eval**: OpenRouter's free-tier daily quota exhausted late in the run, so the very-last end-of-run re-evaluation couldn't execute on fresh LM calls. The baseline and optimized scores come from GEPA's own full-valset evaluations cached in `gepa_state.bin`, which are the same values GEPA uses for candidate selection — they're reliable; they just weren't re-computed after quota reset.
+
+## DSPy 3.2.0 status
+
+This example intentionally still ships the historical DSPy `3.1.3` artifact. The DSPy `3.2.0` refresh pass did revalidate the codepath and rerun the model sweep, but it did not force a new committed artifact because the credible options all failed in one of two ways:
+
+| Probe | Result | Why it did not become the committed DSPy 3.2.0 artifact |
+|---|---:|---|
+| `openrouter/meta-llama/llama-3.2-1b-instruct` | 0.773 (reported as 77.31%) | Left headroom, but optimize produced too many malformed typed outputs and became too slow/noisy to trust |
+| `openrouter/meta-llama/llama-3.2-3b-instruct` | 0.983 (reported as 98.33%) | Too saturated |
+| `openrouter/google/gemma-3-4b-it` | 1.000 (reported as 100.00%) | Saturated |
+| `openrouter/mistralai/ministral-3b-2512` | 1.000 (reported as 100.00%) | Saturated |
+| `openrouter/mistralai/ministral-8b-2512` | 1.000 (reported as 100.00%) | Saturated |
+| `openrouter/qwen/qwen3-1.7b` | unavailable | OpenRouter returned `404: No endpoints found` during validation |
+
+That leaves the current committed artifact as the most honest release artifact for this example: reproducible, instructive, and still meaningfully non-saturated.
 
 ## Task
 
@@ -60,22 +76,22 @@ Feedback names each failing axis with specifics (e.g., *"DATE: predicted '03-05-
 
 ```bash
 # Smoke test
-uv run --with dspy --with python-dotenv --with pydantic python examples/03-invoice-extraction/run.py --dry-run
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with pydantic python examples/03-invoice-extraction/run.py --dry-run
 
-# Baseline
+# Historical committed baseline
 DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free \
-  uv run --with dspy --with python-dotenv --with pydantic \
+  env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with pydantic \
   python examples/03-invoice-extraction/run.py --baseline
 
-# Full GEPA run (~30-60 min on free tier)
+# Historical committed GEPA run (~30-60 min on free tier)
 DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free \
-  uv run --with dspy --with python-dotenv --with pydantic \
+  env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv --with pydantic \
   python examples/03-invoice-extraction/run.py --optimize --auto light --seed 0
 ```
 
-## Why Liquid 1.2B
+## Why this one still points at Liquid 1.2B
 
-Prior validation runs on GLM 4.5 Air (32B), Ministral 8B, and Nemotron Nano 9B all saturated at baseline ≥ 0.98 — modern open models in the 8B+ range trivially handle typed invoice extraction. To showcase GEPA headroom, this example uses the smaller 1.2B Liquid model, which struggles with subtleties (seller-vs-shipper, discount rows, date formats) and gives the reflection LM enough errors to target. With bigger task LMs, expect near-saturated baselines and minimal GEPA movement — that's the task's nature, not a GEPA limitation.
+The 3.2.0 sweep reinforced the same lesson more strongly than before: invoice extraction is now easy enough that many current 3B-8B models saturate the benchmark outright. The only smaller paid model that left real headroom during this refresh also degraded typed-output reliability enough to make the optimize run misleading. Until that changes, the historical Liquid 1.2B artifact remains the clearest demonstration of GEPA headroom on this task.
 
 ## Gotchas (patched)
 
@@ -86,4 +102,4 @@ Two non-obvious issues surfaced during validation; both are fixed in the committ
 
 ## Reproducibility
 
-`seed=0`, `auto="light"`, free-tier models → **$0** reproduction in principle, but the full run hits OpenRouter's 2000 req/day cap so a fresh reproduction needs either waiting for the daily quota reset or a paid-tier fallback (e.g., `openrouter/mistralai/ministral-3b-2512` at $0.10/M tokens). GEPA checkpoints to `gepa_logs/gepa_state.bin`, so you can resume an interrupted run.
+`seed=0`, `auto="light"`, and the free-tier Liquid/Nemotron pair still reproduce the historical artifact in principle, though the run can hit OpenRouter's daily cap. DSPy `3.2.0` itself is not the blocker here; the blocker is finding a current paid task model that is both non-saturated and reliable enough on typed outputs to deserve a new committed artifact.
