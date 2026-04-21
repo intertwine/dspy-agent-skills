@@ -74,7 +74,7 @@ def _evaluator(valset, metric):
     return dspy.Evaluate(
         devset=valset,
         metric=lambda g, p, trace=None, **kw: metric(g, p, trace, **kw),
-        num_threads=get_example_num_threads(1),
+        num_threads=get_example_num_threads(2),
         display_progress=True,
         provide_traceback=True,
         failure_score=0.0,
@@ -149,7 +149,7 @@ def cmd_optimize(args):
         reflection_minibatch_size=3,
         candidate_selection_strategy="pareto",
         use_merge=True,
-        num_threads=get_example_num_threads(1),
+        num_threads=get_example_num_threads(2),
         track_stats=True,
         track_best_outputs=True,
         log_dir=str(HERE / "gepa_logs"),

@@ -104,6 +104,6 @@ def get_example_num_threads(default: int = 1) -> int:
 
 
 def harden_example_lm(lm, default_num_retries: int = 12):
-    """Apply conservative retry settings for flaky or rate-limited providers."""
+    """Set only ``lm.num_retries`` from env for flaky or rate-limited providers."""
     lm.num_retries = max(0, _env_int("DSPY_EXAMPLE_NUM_RETRIES", default_num_retries))
     return lm

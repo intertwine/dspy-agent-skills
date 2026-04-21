@@ -7,7 +7,7 @@ DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, 
 ### Highlights
 
 - Retargeted the repo from DSPy 3.1.x / 3.1.3 to DSPy 3.2.x / 3.2.0 across README, skill docs, manifests, and maintainer guidance.
-- Added `skills/dspy-gepa-optimizer/example_bettertogether.py`, a dry-run-capable example of DSPy 3.2.0's generalized `dspy.BetterTogether(metric=..., key=optimizer, ...)` API.
+- Added `skills/dspy-gepa-optimizer/example_bettertogether.py`, a dry-run-capable example of DSPy 3.2.0's generalized `dspy.BetterTogether(metric=..., bootstrap=..., gepa=...)` API.
 - Updated `dspy-fundamentals` to document 3.2.x type-mismatch warnings, `warn_on_type_mismatch=False`, and the new `dspy.BaseLM` capability/`ContextWindowExceededError` guidance for custom backends.
 - Updated `dspy-rlm-module` for DSPy 3.2.0's `max_output_chars=10_000` default and kwargs-only tool dispatch.
 - Updated `dspy-gepa-optimizer` to explain the new BetterTogether chaining model while keeping plain GEPA as the default recommendation.

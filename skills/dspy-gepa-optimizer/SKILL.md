@@ -148,6 +148,8 @@ optimized = optimizer.compile(
 )
 ```
 
+Pass `strategy=` explicitly when you use named stages like `bootstrap=...` and `gepa=...`. DSPy 3.2.0's default strategy is still `"p -> w -> p"`, which only works if your optimizer keys are literally `p` and `w`.
+
 Keep plain GEPA as the default first pass. Reach for `BetterTogether` only when you have a specific reason to chain optimizers and want the valset to pick the best intermediate program.
 
 ## When GEPA > MIPROv2

@@ -111,7 +111,7 @@ optimized = optimizer.compile(
 )
 ```
 
-The strategy keys come directly from the constructor kwargs (`bootstrap`, `gepa`, etc.), and `BetterTogether` evaluates each stage on the valset before returning the best program.
+The strategy keys come directly from the constructor kwargs (`bootstrap`, `gepa`, etc.), and `BetterTogether` evaluates each stage on the valset before returning the best program. Pass `strategy=` explicitly for named stages: DSPy 3.2.0's default remains `"p -> w -> p"`, which assumes your optimizer keys are literally `p` and `w`.
 
 ## Tuning guide
 

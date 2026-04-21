@@ -15,13 +15,17 @@ and caught it in external review. Each guard maps to a specific pitfall:
 3. Stale RLM defaults — `max_output_chars` is 10_000 in DSPy 3.2.0, not
    100_000. Any reference to the old value is a bug.
 4. Stale BetterTogether API guidance — DSPy 3.2.0 uses arbitrary named
-   optimizers via `dspy.BetterTogether(metric=..., key=optimizer, ...)`,
+   optimizers via `dspy.BetterTogether(metric=..., bootstrap=..., gepa=...)`,
    not the older `prompt_optimizer=` / `weight_optimizer=` pair.
 5. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
    that claim, and the dry-run smoke-test loop depends on it.
-6. Installation docs must reflect the actual example runtime path — DSPy
+6. `docs/usage.md` must list every per-skill `example_*.py` command that
+   contributors are expected to keep runnable.
+7. Installation docs must reflect the actual example runtime path — DSPy
    3.2.0, `OPENROUTER_API_KEY` for the end-to-end examples, and the
    `UV_EXCLUDE_NEWER` troubleshooting note we validated locally.
+8. Release-status docs must not regress to claiming all committed example
+   artifacts are still historical DSPy 3.1.3 runs after the 3.2 refresh.
 
 Rule 2's regex intentionally errs on the side of false positives. To allow an
 intentional anti-pattern mention, put one of the marker words (see
@@ -236,7 +240,7 @@ def test_no_stale_bettertogether_api(path: Path):
 
     assert not offenders, (
         "Stale BetterTogether API guidance detected. DSPy 3.2.x uses "
-        "`dspy.BetterTogether(metric=..., key=optimizer, ...)` with strategy "
+        "`dspy.BetterTogether(metric=..., <name>=optimizer, ...)` with strategy "
         "strings, not `prompt_optimizer=` / `weight_optimizer=`:\n  "
         + "\n  ".join(offenders)
     )
@@ -307,20 +311,28 @@ def test_example_status_docs_reflect_the_3_2_refresh():
     """README docs should not claim every committed example artifact is still historical."""
     checks = {
         REPO / "README.md": (
-            "still come from the original DSPy `3.1.3` validation runs",
-            "full live re-benchmarking is the next release follow-up",
+            re.compile(r"all .*example.*artifacts.*3\.1\.3", re.IGNORECASE),
+            re.compile(
+                r"full live re-benchmarking is the next release follow-up",
+                re.IGNORECASE,
+            ),
         ),
         REPO / "examples" / "README.md": (
-            "The current branch keeps those live results as historical artifacts",
+            re.compile(
+                r"keeps .*live results as historical artifacts",
+                re.IGNORECASE,
+            ),
         ),
     }
 
     offenders: list[str] = []
-    for path, stale_phrases in checks.items():
+    for path, stale_patterns in checks.items():
         text = _read(path)
-        for phrase in stale_phrases:
-            if phrase in text:
-                offenders.append(f"{path.relative_to(REPO)}: contains stale phrase `{phrase}`")
+        for pattern in stale_patterns:
+            if pattern.search(text):
+                offenders.append(
+                    f"{path.relative_to(REPO)}: matches stale-status pattern `{pattern.pattern}`"
+                )
 
     assert not offenders, (
         "Release-status docs still describe the old pre-refresh example state:\n  "
