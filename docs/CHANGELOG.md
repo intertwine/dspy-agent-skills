@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0 — draft
+## v0.2.0 — 2026-04-21
 
 DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, references, manifests, and regression guards from DSPy 3.1.x assumptions to the real DSPy 3.2.0 surface, while adding a concrete example for the biggest new optimizer-facing capability.
 
