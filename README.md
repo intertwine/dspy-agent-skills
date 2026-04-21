@@ -1,5 +1,7 @@
 # DSPy Agent Skills
 
+[![DSPy 3.2.x](https://img.shields.io/badge/DSPy-3.2.x-0A7B83)](https://dspy.ai/)
+
 **Production-grade DSPy 3.2.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
 
 - ✅ Validated against DSPy 3.2.0 (the real API, not inferred from stale docs)
@@ -120,7 +122,7 @@ dspy-agent-skills/
 
 ## Version
 
-**Next release target: v0.2.0**  •  Targets DSPy 3.2.x
+**v0.2.0** • Targets DSPy 3.2.x
 
 ## License
 
