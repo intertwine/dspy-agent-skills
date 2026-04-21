@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.2.0 — draft
+
+DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, references, manifests, and regression guards from DSPy 3.1.x assumptions to the real DSPy 3.2.0 surface, while adding a concrete example for the biggest new optimizer-facing capability.
+
+### Highlights
+
+- Retargeted the repo from DSPy 3.1.x / 3.1.3 to DSPy 3.2.x / 3.2.0 across README, skill docs, manifests, and maintainer guidance.
+- Added `skills/dspy-gepa-optimizer/example_bettertogether.py`, a dry-run-capable example of DSPy 3.2.0's generalized `dspy.BetterTogether(metric=..., key=optimizer, ...)` API.
+- Updated `dspy-fundamentals` to document 3.2.x type-mismatch warnings, `warn_on_type_mismatch=False`, and the new `dspy.BaseLM` capability/`ContextWindowExceededError` guidance for custom backends.
+- Updated `dspy-rlm-module` for DSPy 3.2.0's `max_output_chars=10_000` default and kwargs-only tool dispatch.
+- Updated `dspy-gepa-optimizer` to explain the new BetterTogether chaining model while keeping plain GEPA as the default recommendation.
+- Added a regression guard against stale BetterTogether constructor guidance and flipped the RLM default guard to the 3.2.0 value.
+- Kept the committed live example artifacts as historical DSPy 3.1.3 runs; the next follow-up is full 3.2.x live re-benchmarking.
+
+### Validation
+
+- `uv run --with pytest python -m pytest tests/ -v` → `80 passed`
+- All 6 skill examples executed via `--dry-run` under DSPy 3.2.0
+- All 3 end-to-end examples executed via `--dry-run` under DSPy 3.2.0
+- During release prep, local `uv run --with dspy` still resolved DSPy `3.1.3` on this machine, so the 3.2.0 smoke tests were run in an isolated environment installed from the official 3.2.0 wheel.
+
 ## v0.1.0 — 2026-04-19
 
 First published release. Synthesis and correction of the initial `PLAN.md` draft into a spec-compliant pack that installs cleanly in Claude Code and Codex CLI.

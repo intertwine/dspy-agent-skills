@@ -78,6 +78,8 @@ print("Optimized:", evaluator(optimized).score)
 optimized.save("program.json", save_program=False)
 ```
 
+On DSPy 3.2.x, module calls now warn by default when you pass extra input fields or values that don't match the signature's declared types. Treat those warnings as a callsite bug first; only disable them with `dspy.configure(warn_on_type_mismatch=False)` when you intentionally pass pre-serialized values.
+
 ## Running the bundled example scripts
 
 Each skill folder contains a runnable `example_*.py` with a `--dry-run` flag that verifies construction without calling an LM:
@@ -91,6 +93,7 @@ uv run python example_metric.py --dry-run
 
 cd ../dspy-gepa-optimizer
 uv run python example_gepa.py --dry-run
+uv run python example_bettertogether.py --dry-run
 
 cd ../dspy-rlm-module
 uv run python example_rlm.py --dry-run

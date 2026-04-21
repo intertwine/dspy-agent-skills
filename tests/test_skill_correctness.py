@@ -3,7 +3,7 @@
 These rules exist because we shipped subtly wrong teaching material once
 and caught it in external review. Each guard maps to a specific pitfall:
 
-1. `.overall_score` — wrong attribute. DSPy 3.1.x's `EvaluationResult` uses
+1. `.overall_score` — wrong attribute. DSPy's `EvaluationResult` uses
    `.score`. An agent that learns `.overall_score` will write code that
    raises `AttributeError` at runtime.
 2. Dict-returning metrics — `dspy.Evaluate`'s parallel executor aggregates
@@ -12,9 +12,12 @@ and caught it in external review. Each guard maps to a specific pitfall:
    must return `dspy.Prediction(score=..., feedback=...)`. The guard scans
    code-style returns AND prose mentions AND multi-line dict literals, since
    any of these will teach an agent the wrong contract.
-3. Stale RLM defaults — `max_output_chars` is 100_000 in DSPy 3.1.3, not
-   10_000. Any reference to the old value is a bug.
-4. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
+3. Stale RLM defaults — `max_output_chars` is 10_000 in DSPy 3.2.0, not
+   100_000. Any reference to the old value is a bug.
+4. Stale BetterTogether API guidance — DSPy 3.2.0 uses arbitrary named
+   optimizers via `dspy.BetterTogether(metric=..., key=optimizer, ...)`,
+   not the older `prompt_optimizer=` / `weight_optimizer=` pair.
+5. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
    that claim, and the dry-run smoke-test loop depends on it.
 
 Rule 2's regex intentionally errs on the side of false positives. To allow an
@@ -67,7 +70,7 @@ def test_no_overall_score_in_teaching_material():
             if "overall_score" in line:
                 offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
     assert not offenders, (
-        "`.overall_score` appears in skill/docs teaching material. DSPy 3.1.x uses "
+        "`.overall_score` appears in skill/docs teaching material. DSPy uses "
         "`result.score`. Offending lines:\n  " + "\n  ".join(offenders)
     )
 
@@ -168,15 +171,15 @@ def test_no_dict_metric_guidance(path: Path):
 
 
 def test_no_stale_rlm_max_output_chars():
-    """`max_output_chars` default in DSPy 3.1.3 is 100_000, not 10_000."""
+    """`max_output_chars` default in DSPy 3.2.0 is 10_000, not 100_000."""
     offenders: list[str] = []
     stale_patterns = (
-        re.compile(r"max_output_chars\s*=\s*10_000\b"),
-        re.compile(r"max_output_chars\s*=\s*10000\b"),
-        re.compile(r"max_output_chars[^\n]*\|\s*10_000\s*\|"),  # table cells
-        re.compile(r"max_output_chars[^\n]*\|\s*10000\s*\|"),
-        re.compile(r"Output truncated at 10000 chars", re.IGNORECASE),
-        re.compile(r"Output truncated at 10_000 chars", re.IGNORECASE),
+        re.compile(r"max_output_chars\s*=\s*100_000\b"),
+        re.compile(r"max_output_chars\s*=\s*100000\b"),
+        re.compile(r"max_output_chars[^\n]*\|\s*100_000\s*\|"),  # table cells
+        re.compile(r"max_output_chars[^\n]*\|\s*100000\s*\|"),
+        re.compile(r"Output truncated at 100000 chars", re.IGNORECASE),
+        re.compile(r"Output truncated at 100_000 chars", re.IGNORECASE),
     )
     for path in _iter_teaching_files():
         text = _read(path)
@@ -186,12 +189,57 @@ def test_no_stale_rlm_max_output_chars():
                     offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
                     break
     assert not offenders, (
-        "Stale `max_output_chars` default detected. DSPy 3.1.3 uses 100_000:\n  "
+        "Stale `max_output_chars` default detected. DSPy 3.2.0 uses 10_000:\n  "
         + "\n  ".join(offenders)
     )
 
 
-# --- Rule 4: every skill ships a runnable example with --dry-run -----------
+# --- Rule 4: no stale BetterTogether API guidance ---------------------------
+
+
+def _multiline_bettertogether_legacy_spans(text: str) -> list[tuple[int, str]]:
+    """Flag legacy BetterTogether calls that use the pre-3.2.0 argument names."""
+    hits: list[tuple[int, str]] = []
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if "BetterTogether(" not in line:
+            continue
+        window = "\n".join(lines[i : i + 8])
+        if re.search(r"\bprompt_optimizer\s*=", window) or re.search(
+            r"\bweight_optimizer\s*=", window
+        ):
+            hits.append((i + 1, line.strip()))
+    return hits
+
+
+@pytest.mark.parametrize(
+    "path", _iter_teaching_files(), ids=lambda p: str(p.relative_to(REPO))
+)
+def test_no_stale_bettertogether_api(path: Path):
+    """DSPy 3.2.x BetterTogether uses named `**optimizers`, not the old 2-slot API."""
+    text = _read(path)
+    offenders: list[str] = []
+
+    for i, line in enumerate(text.splitlines(), 1):
+        if "BetterTogether(" in line and (
+            "prompt_optimizer=" in line or "weight_optimizer=" in line
+        ):
+            offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
+
+    for i, snippet in _multiline_bettertogether_legacy_spans(text):
+        offenders.append(
+            f"{path.relative_to(REPO)}:{i}: {snippet} (legacy BetterTogether API)"
+        )
+
+    assert not offenders, (
+        "Stale BetterTogether API guidance detected. DSPy 3.2.x uses "
+        "`dspy.BetterTogether(metric=..., key=optimizer, ...)` with strategy "
+        "strings, not `prompt_optimizer=` / `weight_optimizer=`:\n  "
+        + "\n  ".join(offenders)
+    )
+
+
+# --- Rule 5: every skill ships a runnable example with --dry-run -----------
 
 
 @pytest.mark.parametrize("skill_dir", _iter_skill_dirs(), ids=lambda p: p.name)
@@ -209,7 +257,7 @@ def test_every_skill_has_example(skill_dir: Path):
         )
 
 
-# --- Rule 5: docs/usage.md's example command list must mention every skill -
+# --- Rule 6: docs/usage.md's example command list must mention every skill -
 
 
 def test_usage_doc_lists_every_skill_example():

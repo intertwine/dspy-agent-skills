@@ -25,7 +25,7 @@ rlm = dspy.RLM(
     "context, query -> answer",
     max_iterations=20,
     max_llm_calls=50,
-    max_output_chars=100_000,
+    max_output_chars=10_000,
     sub_lm=sub_lm,
     tools=[],
     verbose=False,
@@ -45,7 +45,7 @@ dspy.RLM(
     signature: type[Signature] | str,
     max_iterations: int = 20,       # REPL loop cap
     max_llm_calls: int = 50,        # sub-LM call cap (stops runaway recursion)
-    max_output_chars: int = 100_000, # truncate REPL stdout per step
+    max_output_chars: int = 10_000, # truncate REPL stdout per step
     verbose: bool = False,          # print the REPL trace
     tools: list[Callable] | None = None,
     sub_lm: dspy.LM | None = None,
@@ -85,10 +85,11 @@ Then: `dspy.GEPA(metric=..., ...).compile(student=RepoAuditor(), trainset=..., v
 ## Practical tips
 
 - **Budget carefully.** A single RLM call can issue dozens of sub-LM calls. Keep `max_llm_calls` tight (20–50) in production; raise for research.
+- **The default stdout cap is smaller in DSPy 3.2.x.** `max_output_chars` now defaults to `10_000`; raise it deliberately if your REPL tools print large tables or document slices.
 - **Use a cheap `sub_lm`.** The outer LM orchestrates; inner calls (summarize, filter, score) don't need the flagship model.
 - **Pass data as kwargs, not in the instruction.** `rlm(context=huge_string, query="...")` lets the REPL treat `context` as a Python variable. Avoid concatenating it into the prompt.
 - **`verbose=True` while debugging.** Prints every REPL step — invaluable when the RLM appears to hang or loop.
-- **Custom tools** are regular Python callables passed via `tools=[...]`; they are exposed inside the sandbox. Useful for `read_file`, `grep`, `vector_search`, etc.
+- **Custom tools** are regular Python callables passed via `tools=[...]`; they are exposed inside the sandbox. Useful for `read_file`, `grep`, `vector_search`, etc. In DSPy 3.2.x they are invoked by keyword, so give them named, typed parameters rather than positional-only signatures.
 - **Deno install is required.** Missing Deno is the #1 RLM error. Check `which deno` before reporting bugs.
 
 ## Security note

@@ -2,6 +2,8 @@
 
 Three runnable end-to-end examples that exercise the skills against real, reproducible tasks. Each runs on **free OpenRouter models**, burns **$0** to reproduce, and ships with committed baseline vs. GEPA-optimized numbers.
 
+The committed metrics and saved `optimized_program.json` artifacts below were produced on DSPy `3.1.3`. The current branch keeps those live results as historical artifacts while smoke-testing the example codepaths and skill docs against DSPy `3.2.0`.
+
 ## Committed results
 
 | Example | Task LM | Baseline | Optimized | Δ | Mutations accepted |

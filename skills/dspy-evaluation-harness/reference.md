@@ -1,6 +1,6 @@
 # DSPy Evaluation Harness — API Reference
 
-Source: https://dspy.ai/api/evaluation/Evaluate/ (DSPy 3.1.x).
+Source: https://dspy.ai/api/evaluation/Evaluate/ (DSPy 3.2.x).
 
 ## `dspy.Evaluate`
 

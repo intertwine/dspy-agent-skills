@@ -4,7 +4,7 @@ description: Optimize DSPy programs with dspy.GEPA — the reflective/evolutiona
 when_to_use: User asks to optimize/compile/tune a DSPy program, mentions GEPA or reflective optimization, or has a working program with a non-trivial metric and wants to improve it.
 ---
 
-# DSPy GEPA Optimizer (3.1.x)
+# DSPy GEPA Optimizer (3.2.x)
 
 GEPA (Genetic-Pareto) is a reflective optimizer: it mutates a program's instructions and few-shots using an LM that reads your metric's **textual feedback** and proposes improvements. It maintains a Pareto frontier across validation tasks and is the default recommendation for complex DSPy workloads in 2026.
 
@@ -94,7 +94,7 @@ Use **either** `auto=...` **or** explicit budget — not both.
 
 Each "full eval" ≈ `len(valset)` metric calls. Budget accordingly for cost.
 
-## Constructor parameters (every one, DSPy 3.1.x)
+## Constructor parameters (every one, DSPy 3.2.x)
 
 ```python
 dspy.GEPA(
@@ -128,6 +128,27 @@ dspy.GEPA(
 ```
 
 `.compile(student, *, trainset, valset=None, teacher=None)` — `teacher` is not currently used.
+
+## BetterTogether in DSPy 3.2.x
+
+If you want a multi-stage optimizer loop, DSPy 3.2.0's `BetterTogether` now accepts arbitrary named optimizers instead of the older fixed `prompt_optimizer` / `weight_optimizer` pair:
+
+```python
+optimizer = dspy.BetterTogether(
+    metric=rich_metric,
+    bootstrap=dspy.BootstrapFewShotWithRandomSearch(metric=rich_metric),
+    gepa=dspy.GEPA(metric=rich_metric, auto="light", reflection_lm=reflection_lm),
+)
+
+optimized = optimizer.compile(
+    student=program,
+    trainset=trainset,
+    valset=valset,
+    strategy="bootstrap -> gepa",
+)
+```
+
+Keep plain GEPA as the default first pass. Reach for `BetterTogether` only when you have a specific reason to chain optimizers and want the valset to pick the best intermediate program.
 
 ## When GEPA > MIPROv2
 
@@ -173,3 +194,4 @@ add `reflection_lm=dspy.LM("openai/gpt-4o", temperature=1.0, max_tokens=8000)` t
 - End-to-end pipeline → `dspy-advanced-workflow`.
 - Parameter reference → [reference.md](reference.md).
 - Runnable example → [example_gepa.py](example_gepa.py).
+- BetterTogether chaining example → [example_bettertogether.py](example_bettertogether.py).

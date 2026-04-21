@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository packages DSPy 3.1.x agent skills for Claude Code, Codex CLI, and other agentskills.io-compatible tools. The main product lives in `skills/`: each `skills/<skill-name>/` directory contains a required `SKILL.md`, optional `reference.md`, and runnable `example_*.py` files. End-to-end validation demos live in `examples/`, with shared helpers in `examples/common/` and per-demo data under `examples/*/data/`. Tests are in `tests/`, distribution metadata is in `.claude-plugin/`, installation tooling is in `scripts/`, and contributor/user docs are in `docs/`.
+This repository packages DSPy 3.2.x agent skills for Claude Code, Codex CLI, and other agentskills.io-compatible tools. The main product lives in `skills/`: each `skills/<skill-name>/` directory contains a required `SKILL.md`, optional `reference.md`, and runnable `example_*.py` files. End-to-end validation demos live in `examples/`, with shared helpers in `examples/common/` and per-demo data under `examples/*/data/`. Tests are in `tests/`, distribution metadata is in `.claude-plugin/`, installation tooling is in `scripts/`, and contributor/user docs are in `docs/`.
 
 ## Build, Test, and Development Commands
 

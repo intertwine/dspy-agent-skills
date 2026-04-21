@@ -4,7 +4,7 @@ Guidance for Claude Code (or any agent) working inside this repo.
 
 ## What this repo is
 
-A pack of five agent skills that teaches coding agents to build, optimize, and ship DSPy 3.1.x programs. It is designed to install cleanly into both **Claude Code** (`~/.claude/skills/`) and **Codex CLI** (`~/.agents/skills/`).
+A pack of five agent skills that teaches coding agents to build, optimize, and ship DSPy 3.2.x programs. It is designed to install cleanly into both **Claude Code** (`~/.claude/skills/`) and **Codex CLI** (`~/.agents/skills/`).
 
 The skills themselves are in `skills/<name>/SKILL.md`. The product is Markdown; Python files in `skills/*/example_*.py` are runnable smoke tests, not library code.
 
@@ -21,7 +21,7 @@ docs/              # installation.md, usage.md, CHANGELOG.md
 ## Commands you'll actually run
 
 ```bash
-# Validate all skill metadata, manifests, example syntax, and skill-doc correctness (60 tests)
+# Validate all skill metadata, manifests, example syntax, and skill-doc correctness (80 tests)
 uv run --with pytest python -m pytest tests/ -v
 
 # Smoke-test every example offline (no API key needed)
@@ -59,7 +59,7 @@ Keep `SKILL.md` focused and under ~500 lines. Push deep API detail into `referen
 
 ### Grounding claims
 
-Every DSPy API claim must be verifiable against https://dspy.ai/ for DSPy 3.1.x. If you update a signature or parameter, re-check the docs and update `reference.md` in lockstep.
+Every DSPy API claim must be verifiable against https://dspy.ai/ for DSPy 3.2.x. If you update a signature or parameter, re-check the docs and update `reference.md` in lockstep.
 
 ### When adding a new skill
 

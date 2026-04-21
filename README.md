@@ -1,13 +1,14 @@
 # DSPy Agent Skills
 
-**Production-grade DSPy 3.1.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
+**Production-grade DSPy 3.2.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
 
-- ✅ Validated against DSPy 3.1.3 (the real API, not inferred from older docs)
+- ✅ Validated against DSPy 3.2.0 (the real API, not inferred from stale docs)
 - ✅ Single source of truth for both **Claude Code** and **Codex CLI**
 - ✅ Progressive disclosure (short `SKILL.md` + deep `reference.md`)
 - ✅ Runnable `example_*.py` scripts with offline `--dry-run`
+- ✅ Includes a DSPy 3.2.0 `BetterTogether` chaining example
 - ✅ Plugin manifest + marketplace manifest for one-click install
-- ✅ 60 validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
+- ✅ 80 validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
 
 ## What's inside
 
@@ -62,11 +63,13 @@ Three runnable demos under [`examples/`](examples/) exercise every skill against
 
 All runs: `auto="light"`, `seed=0`, reflection LM `nvidia/nemotron-3-super-120b-a12b:free`. See [`examples/README.md`](examples/README.md) for the full quickstart and per-example READMEs for task details.
 
+The committed live artifacts in `examples/*/{results,optimized_program}.json` still come from the original DSPy `3.1.3` validation runs. The current branch updates the skills, docs, and dry-run/example construction paths for DSPy `3.2.0`; full live re-benchmarking is the next release follow-up.
+
 ## Grounding
 
 Every API claim is grounded in:
 
-- https://dspy.ai/ (official docs, DSPy 3.1.x)
+- https://dspy.ai/ (official docs, DSPy 3.2.x)
 - https://code.claude.com/docs/en/skills.md (Claude Code skill spec)
 - https://developers.openai.com/codex/skills (Codex skill spec)
 
@@ -86,7 +89,7 @@ OPENAI_API_KEY=... uv run --with dspy python example_pipeline.py --auto light
 
 ## Compatibility
 
-- **DSPy**: 3.1.x (tested against 3.1.3)
+- **DSPy**: 3.2.x (tested against 3.2.0)
 - **Claude Code**: current (skill spec as of 2026-04-17)
 - **Codex CLI**: current Agent Skills format
 - **Python**: 3.10+
@@ -113,7 +116,7 @@ dspy-agent-skills/
 
 ## Version
 
-**v0.1.0** — April 19, 2026  •  Targets DSPy 3.1.x
+**Next release target: v0.2.0**  •  Targets DSPy 3.2.x
 
 ## License
 

@@ -1,16 +1,16 @@
 ---
 name: dspy-fundamentals
-description: Write idiomatic DSPy 3.1.x programs — typed Signatures, dspy.Module subclasses, Predict/ChainOfThought/ReAct/ProgramOfThought, and save/load. Use this when starting any new DSPy project or when fixing non-idiomatic DSPy code (hard-coded prompts, ad-hoc string templates, untyped outputs, non-serializable classes).
+description: Write idiomatic DSPy 3.2.x programs — typed Signatures, dspy.Module subclasses, Predict/ChainOfThought/ReAct/ProgramOfThought, and save/load. Use this when starting any new DSPy project or when fixing non-idiomatic DSPy code (hard-coded prompts, ad-hoc string templates, untyped outputs, non-serializable classes).
 when_to_use: User mentions DSPy, writes a file that imports `dspy`, asks to build an LLM pipeline/program/agent with structured inputs/outputs, or requests refactoring of prompt-engineering code into a programmatic framework.
 ---
 
-# DSPy Fundamentals (3.1.x)
+# DSPy Fundamentals (3.2.x)
 
 DSPy is the "PyTorch for prompts" — you declare **Signatures** (typed I/O contracts), compose them into **Modules**, and let optimizers (not you) tune the instructions and few-shot examples. Never write raw prompts.
 
 ## The one-paragraph model
 
-Configure a single LM globally with `dspy.configure(lm=...)`. Define a `dspy.Signature` subclass with `dspy.InputField()` / `dspy.OutputField()` (docstring becomes the instruction). Wrap it in a predictor — `dspy.Predict` (direct), `dspy.ChainOfThought` (adds reasoning), `dspy.ReAct` (tool-using agent), `dspy.ProgramOfThought` (code-executing), or `dspy.RLM` (long-context). Subclass `dspy.Module` to compose multi-step programs. Optimize later with GEPA.
+Configure a single LM globally with `dspy.configure(lm=...)`. Define a `dspy.Signature` subclass with `dspy.InputField()` / `dspy.OutputField()` (docstring becomes the instruction). Wrap it in a predictor — `dspy.Predict` (direct), `dspy.ChainOfThought` (adds reasoning), `dspy.ReAct` (tool-using agent), `dspy.ProgramOfThought` (code-executing), or `dspy.RLM` (long-context). Subclass `dspy.Module` to compose multi-step programs. For built-in providers, use `dspy.LM("provider/model")`; for a truly custom backend, subclass `dspy.BaseLM`. Optimize later with GEPA.
 
 ## Canonical template
 
@@ -37,7 +37,7 @@ pred = program(question="What is 2 + 2?")
 print(pred.reasoning, pred.answer)
 ```
 
-## Predictor cheatsheet (DSPy 3.1.x)
+## Predictor cheatsheet (DSPy 3.2.x)
 
 | Predictor | When to use | Adds |
 |---|---|---|
@@ -88,7 +88,7 @@ Prefer state-only for version control; full-program for deployment artifacts.
 1. Hard-coded prompt strings (`"You are a helpful assistant..."`) — write a Signature.
 2. `dspy.TypedPredictor(...)` in new code — use `dspy.Predict` with Pydantic fields.
 3. `dspy.OpenAI(...)` / `dspy.settings.configure(...)` — use `dspy.configure(lm=dspy.LM(...))`.
-4. Provider-specific LM classes — use `dspy.LM("provider/model")` (LiteLLM format).
+4. Provider-specific LM classes for built-in providers — use `dspy.LM("provider/model")`. If DSPy doesn't ship your backend, subclass `dspy.BaseLM`.
 5. Giant monolithic predictors that do five jobs — decompose into a `Module` with named sub-predictors.
 6. Mutating `signature.instructions` by hand — let the optimizer do it.
 7. In-lining few-shot demos in the Signature docstring — bootstrap/optimize them.
@@ -105,6 +105,8 @@ dspy.configure(
     async_max_workers=4,     # for .acall / batch
 )
 ```
+
+DSPy 3.2.x warns by default when a module call passes extra input fields or values that don't match the signature's declared types. Treat those warnings as a callsite bug first; if you're intentionally passing pre-serialized values, disable them with `dspy.configure(warn_on_type_mismatch=False)`.
 
 Common provider prefixes: `openai/`, `anthropic/`, `azure/`, `vertex_ai/`, `bedrock/`, `ollama/`. For local Ollama: `dspy.LM("ollama_chat/llama3.1:8b", api_base="http://localhost:11434")`.
 
