@@ -1,6 +1,6 @@
 # `dspy.GEPA` — Full Reference
 
-Source: https://dspy.ai/api/optimizers/GEPA/overview/ (DSPy 3.1.x, April 2026).
+Source: https://dspy.ai/api/optimizers/GEPA/overview/ (DSPy 3.2.x, April 2026).
 
 ## Location
 
@@ -92,6 +92,27 @@ dspy.GEPA(..., log_dir="./gepa_logs", use_wandb=True, use_mlflow=True)
 
 Writes per-round artifacts: `candidates/<id>.json`, `scores.jsonl`, `reflections/`. Resume by pointing `log_dir` at the same path.
 
+## `dspy.BetterTogether` in 3.2.0
+
+DSPy 3.2.0 expanded `dspy.BetterTogether` from a fixed prompt/weight pair into an arbitrary optimizer-chain wrapper:
+
+```python
+optimizer = dspy.BetterTogether(
+    metric=metric,
+    bootstrap=dspy.BootstrapFewShotWithRandomSearch(metric=metric),
+    gepa=dspy.GEPA(metric=metric, auto="light", reflection_lm=reflection_lm),
+)
+
+optimized = optimizer.compile(
+    student,
+    trainset=trainset,
+    valset=valset,
+    strategy="bootstrap -> gepa",
+)
+```
+
+The strategy keys come directly from the constructor kwargs (`bootstrap`, `gepa`, etc.), and `BetterTogether` evaluates each stage on the valset before returning the best program. Pass `strategy=` explicitly for named stages: DSPy 3.2.0's default remains `"p -> w -> p"`, which assumes your optimizer keys are literally `p` and `w`.
+
 ## Tuning guide
 
 | Symptom | Lever |
@@ -106,5 +127,5 @@ Writes per-round artifacts: `candidates/<id>.json`, `scores.jsonl`, `reflections
 
 - `dspy.MIPROv2` — Bayesian optimization over instructions + demos; best for large trainsets and scalar metrics.
 - `dspy.BootstrapFewShot` — vanilla few-shot extraction; fast, low-signal.
-- `dspy.BetterTogether` — alternates prompt & weight optimization (needs fine-tunable LM).
+- `dspy.BetterTogether` — as of DSPy 3.2.0, chains arbitrary named optimizers via `**optimizers` and a strategy string.
 - `dspy.SIMBA` — simpler reflective optimizer, lighter-weight than GEPA.

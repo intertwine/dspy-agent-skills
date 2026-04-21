@@ -11,16 +11,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from examples.common import configure_dspy, get_reflection_lm  # noqa: E402
+from examples.common import (  # noqa: E402
+    configure_dspy,
+    get_example_num_threads,
+    get_reflection_lm,
+    harden_example_lm,
+)
 from examples.common.data import read_jsonl  # noqa: E402
-
-
-def _harden_lm_for_free_tier(lm):
-    """OpenRouter free-tier gives 16 req/min shared across free models. Bump
-    retries so transient 429s don't corrupt GEPA's fitness signal with spurious
-    zero-score failures. litellm honors Retry-After headers on each retry."""
-    lm.num_retries = 12
-    return lm
 
 
 def _import_pipeline():
@@ -73,7 +70,7 @@ def _evaluator(valset, metric_for_eval):
     return dspy.Evaluate(
         devset=valset,
         metric=metric_for_eval,
-        num_threads=1,
+        num_threads=get_example_num_threads(1),
         display_progress=True,
         provide_traceback=True,
         failure_score=0.0,
@@ -111,7 +108,7 @@ def cmd_dry_run(_):
 
 def cmd_baseline(_):
     pipeline, program, _train, valset = _build_context()
-    configure_dspy()
+    harden_example_lm(configure_dspy())
     RUNS.mkdir(exist_ok=True)
     evaluator = _evaluator(valset, _score_wrapper(pipeline.rich_metric))
     t0 = time.time()
@@ -130,9 +127,8 @@ def cmd_optimize(args):
     import dspy
 
     pipeline, program, trainset, valset = _build_context()
-    task_lm = configure_dspy()
-    _harden_lm_for_free_tier(task_lm)
-    reflection_lm = _harden_lm_for_free_tier(get_reflection_lm())
+    task_lm = harden_example_lm(configure_dspy())
+    reflection_lm = harden_example_lm(get_reflection_lm())
     RUNS.mkdir(exist_ok=True)
     (HERE / "gepa_logs").mkdir(exist_ok=True)
 
@@ -152,7 +148,7 @@ def cmd_optimize(args):
         reflection_minibatch_size=8,
         candidate_selection_strategy="pareto",
         use_merge=True,
-        num_threads=1,
+        num_threads=get_example_num_threads(1),
         track_stats=True,
         track_best_outputs=True,
         log_dir=str(HERE / "gepa_logs"),
@@ -196,7 +192,7 @@ def cmd_optimize(args):
 
 def cmd_eval(args):
     pipeline, program, _train, valset = _build_context()
-    configure_dspy()
+    harden_example_lm(configure_dspy())
     path = Path(args.eval)
     if not path.exists():
         print(f"error: {path} not found", file=sys.stderr)

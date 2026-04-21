@@ -1,13 +1,16 @@
 # DSPy Agent Skills
 
-**Production-grade DSPy 3.1.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
+[![DSPy 3.2.x](https://img.shields.io/badge/DSPy-3.2.x-0A7B83)](https://dspy.ai/)
 
-- ✅ Validated against DSPy 3.1.3 (the real API, not inferred from older docs)
+**Production-grade DSPy 3.2.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
+
+- ✅ Validated against DSPy 3.2.0 (the real API, not inferred from stale docs)
 - ✅ Single source of truth for both **Claude Code** and **Codex CLI**
 - ✅ Progressive disclosure (short `SKILL.md` + deep `reference.md`)
 - ✅ Runnable `example_*.py` scripts with offline `--dry-run`
+- ✅ Includes a DSPy 3.2.0 `BetterTogether` chaining example
 - ✅ Plugin manifest + marketplace manifest for one-click install
-- ✅ 60 validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
+- ✅ 80 validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
 
 ## What's inside
 
@@ -50,23 +53,23 @@ In your agent, say:
 
 The agent auto-loads `dspy-advanced-workflow`, which chains the other skills and outputs a full baseline → GEPA → export pipeline. No further prompting needed.
 
-## End-to-end examples (validated against free OpenRouter models)
+## End-to-end examples (current committed artifacts)
 
-Three runnable demos under [`examples/`](examples/) exercise every skill against real LMs and ship with **committed baseline vs. GEPA-optimized numbers** you can reproduce end-to-end for **$0**:
+Three runnable demos under [`examples/`](examples/) exercise every skill against real LMs and ship with **committed baseline vs. GEPA-optimized numbers** plus explicit `3.1.3` vs. `3.2.0` comparison notes.
 
-| Example | Task LM | Baseline | Optimized | Δ |
-|---|---|---:|---:|---:|
-| [01-rag-qa](examples/01-rag-qa/) | GLM 4.5 Air (32B) | 81.15 | **100.00** | **+18.85** |
-| [02-math-reasoning](examples/02-math-reasoning/) | Liquid LFM 2.5 (1.2B) | 45.00 | **70.00** | **+25.00** |
-| [03-invoice-extraction](examples/03-invoice-extraction/) | Liquid LFM 2.5 (1.2B) | 0.833 | **0.931** | **+0.098** |
+| Example | Artifact DSPy | Task LM | Baseline | Optimized | Δ | Status |
+|---|---|---|---:|---:|---:|---|
+| [01-rag-qa](examples/01-rag-qa/) | 3.2.0 | Ministral 3B 2512 | 75.77 | **100.00** | **+24.23** | Refreshed on 2026-04-21 |
+| [02-math-reasoning](examples/02-math-reasoning/) | 3.2.0 | Ministral 3B 2512 | 85.00 | **93.33** | **+8.33** | Refreshed on 2026-04-21 |
+| [03-invoice-extraction](examples/03-invoice-extraction/) | 3.1.3 | Liquid LFM 2.5 1.2B (free) | 0.833 | **0.931** | **+0.098** | Historical artifact retained |
 
-All runs: `auto="light"`, `seed=0`, reflection LM `nvidia/nemotron-3-super-120b-a12b:free`. See [`examples/README.md`](examples/README.md) for the full quickstart and per-example READMEs for task details.
+The refreshed `01` and `02` artifacts use the paid pair `openrouter/mistralai/ministral-3b-2512` + `openrouter/qwen/qwen3-30b-a3b-instruct-2507`. `03` stays on its historical DSPy `3.1.3` artifact because the DSPy `3.2.0` probe sweep either saturated immediately (`gemma-3-4b-it`, `ministral-3b-2512`, `ministral-8b-2512`) or became too noisy to trust for typed extraction (`llama-3.2-1b-instruct`). See [`examples/README.md`](examples/README.md) and each example's `version_comparison.md` for the exact commands and caveats.
 
 ## Grounding
 
 Every API claim is grounded in:
 
-- https://dspy.ai/ (official docs, DSPy 3.1.x)
+- https://dspy.ai/ (official docs, DSPy 3.2.x)
 - https://code.claude.com/docs/en/skills.md (Claude Code skill spec)
 - https://developers.openai.com/codex/skills (Codex skill spec)
 
@@ -84,9 +87,15 @@ cd skills/dspy-advanced-workflow
 OPENAI_API_KEY=... uv run --with dspy python example_pipeline.py --auto light
 ```
 
+If `uv run --with dspy` resolves DSPy `3.1.3` instead of `3.2.0`, check whether `UV_EXCLUDE_NEWER` or a stale package mirror is hiding the new release. The exact 3.2.0 override we validated for this repo is:
+
+```bash
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 python -c 'import dspy; print(dspy.__version__)'
+```
+
 ## Compatibility
 
-- **DSPy**: 3.1.x (tested against 3.1.3)
+- **DSPy**: 3.2.x (tested against 3.2.0)
 - **Claude Code**: current (skill spec as of 2026-04-17)
 - **Codex CLI**: current Agent Skills format
 - **Python**: 3.10+
@@ -113,7 +122,7 @@ dspy-agent-skills/
 
 ## Version
 
-**v0.1.0** — April 19, 2026  •  Targets DSPy 3.1.x
+**v0.2.0** • Targets DSPy 3.2.x
 
 ## License
 

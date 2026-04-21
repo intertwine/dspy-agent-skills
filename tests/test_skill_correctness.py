@@ -3,7 +3,7 @@
 These rules exist because we shipped subtly wrong teaching material once
 and caught it in external review. Each guard maps to a specific pitfall:
 
-1. `.overall_score` — wrong attribute. DSPy 3.1.x's `EvaluationResult` uses
+1. `.overall_score` — wrong attribute. DSPy's `EvaluationResult` uses
    `.score`. An agent that learns `.overall_score` will write code that
    raises `AttributeError` at runtime.
 2. Dict-returning metrics — `dspy.Evaluate`'s parallel executor aggregates
@@ -12,10 +12,20 @@ and caught it in external review. Each guard maps to a specific pitfall:
    must return `dspy.Prediction(score=..., feedback=...)`. The guard scans
    code-style returns AND prose mentions AND multi-line dict literals, since
    any of these will teach an agent the wrong contract.
-3. Stale RLM defaults — `max_output_chars` is 100_000 in DSPy 3.1.3, not
-   10_000. Any reference to the old value is a bug.
-4. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
+3. Stale RLM defaults — `max_output_chars` is 10_000 in DSPy 3.2.0, not
+   100_000. Any reference to the old value is a bug.
+4. Stale BetterTogether API guidance — DSPy 3.2.0 uses arbitrary named
+   optimizers via `dspy.BetterTogether(metric=..., bootstrap=..., gepa=...)`,
+   not the older `prompt_optimizer=` / `weight_optimizer=` pair.
+5. Every skill must ship a runnable `example_*.py` — `docs/usage.md` makes
    that claim, and the dry-run smoke-test loop depends on it.
+6. `docs/usage.md` must list every per-skill `example_*.py` command that
+   contributors are expected to keep runnable.
+7. Installation docs must reflect the actual example runtime path — DSPy
+   3.2.0, `OPENROUTER_API_KEY` for the end-to-end examples, and the
+   `UV_EXCLUDE_NEWER` troubleshooting note we validated locally.
+8. Release-status docs must not regress to claiming all committed example
+   artifacts are still historical DSPy 3.1.3 runs after the 3.2 refresh.
 
 Rule 2's regex intentionally errs on the side of false positives. To allow an
 intentional anti-pattern mention, put one of the marker words (see
@@ -67,7 +77,7 @@ def test_no_overall_score_in_teaching_material():
             if "overall_score" in line:
                 offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
     assert not offenders, (
-        "`.overall_score` appears in skill/docs teaching material. DSPy 3.1.x uses "
+        "`.overall_score` appears in skill/docs teaching material. DSPy uses "
         "`result.score`. Offending lines:\n  " + "\n  ".join(offenders)
     )
 
@@ -168,15 +178,15 @@ def test_no_dict_metric_guidance(path: Path):
 
 
 def test_no_stale_rlm_max_output_chars():
-    """`max_output_chars` default in DSPy 3.1.3 is 100_000, not 10_000."""
+    """`max_output_chars` default in DSPy 3.2.0 is 10_000, not 100_000."""
     offenders: list[str] = []
     stale_patterns = (
-        re.compile(r"max_output_chars\s*=\s*10_000\b"),
-        re.compile(r"max_output_chars\s*=\s*10000\b"),
-        re.compile(r"max_output_chars[^\n]*\|\s*10_000\s*\|"),  # table cells
-        re.compile(r"max_output_chars[^\n]*\|\s*10000\s*\|"),
-        re.compile(r"Output truncated at 10000 chars", re.IGNORECASE),
-        re.compile(r"Output truncated at 10_000 chars", re.IGNORECASE),
+        re.compile(r"max_output_chars\s*=\s*100_000\b"),
+        re.compile(r"max_output_chars\s*=\s*100000\b"),
+        re.compile(r"max_output_chars[^\n]*\|\s*100_000\s*\|"),  # table cells
+        re.compile(r"max_output_chars[^\n]*\|\s*100000\s*\|"),
+        re.compile(r"Output truncated at 100000 chars", re.IGNORECASE),
+        re.compile(r"Output truncated at 100_000 chars", re.IGNORECASE),
     )
     for path in _iter_teaching_files():
         text = _read(path)
@@ -186,12 +196,57 @@ def test_no_stale_rlm_max_output_chars():
                     offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
                     break
     assert not offenders, (
-        "Stale `max_output_chars` default detected. DSPy 3.1.3 uses 100_000:\n  "
+        "Stale `max_output_chars` default detected. DSPy 3.2.0 uses 10_000:\n  "
         + "\n  ".join(offenders)
     )
 
 
-# --- Rule 4: every skill ships a runnable example with --dry-run -----------
+# --- Rule 4: no stale BetterTogether API guidance ---------------------------
+
+
+def _multiline_bettertogether_legacy_spans(text: str) -> list[tuple[int, str]]:
+    """Flag legacy BetterTogether calls that use the pre-3.2.0 argument names."""
+    hits: list[tuple[int, str]] = []
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if "BetterTogether(" not in line:
+            continue
+        window = "\n".join(lines[i : i + 8])
+        if re.search(r"\bprompt_optimizer\s*=", window) or re.search(
+            r"\bweight_optimizer\s*=", window
+        ):
+            hits.append((i + 1, line.strip()))
+    return hits
+
+
+@pytest.mark.parametrize(
+    "path", _iter_teaching_files(), ids=lambda p: str(p.relative_to(REPO))
+)
+def test_no_stale_bettertogether_api(path: Path):
+    """DSPy 3.2.x BetterTogether uses named `**optimizers`, not the old 2-slot API."""
+    text = _read(path)
+    offenders: list[str] = []
+
+    for i, line in enumerate(text.splitlines(), 1):
+        if "BetterTogether(" in line and (
+            "prompt_optimizer=" in line or "weight_optimizer=" in line
+        ):
+            offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
+
+    for i, snippet in _multiline_bettertogether_legacy_spans(text):
+        offenders.append(
+            f"{path.relative_to(REPO)}:{i}: {snippet} (legacy BetterTogether API)"
+        )
+
+    assert not offenders, (
+        "Stale BetterTogether API guidance detected. DSPy 3.2.x uses "
+        "`dspy.BetterTogether(metric=..., <name>=optimizer, ...)` with strategy "
+        "strings, not `prompt_optimizer=` / `weight_optimizer=`:\n  "
+        + "\n  ".join(offenders)
+    )
+
+
+# --- Rule 5: every skill ships a runnable example with --dry-run -----------
 
 
 @pytest.mark.parametrize("skill_dir", _iter_skill_dirs(), ids=lambda p: p.name)
@@ -209,7 +264,7 @@ def test_every_skill_has_example(skill_dir: Path):
         )
 
 
-# --- Rule 5: docs/usage.md's example command list must mention every skill -
+# --- Rule 6: docs/usage.md's example command list must mention every skill -
 
 
 def test_usage_doc_lists_every_skill_example():
@@ -223,4 +278,63 @@ def test_usage_doc_lists_every_skill_example():
                 missing.append(f"{skill_dir.name}/{ex.name}")
     assert not missing, (
         "`docs/usage.md` does not list these example scripts: " + ", ".join(missing)
+    )
+
+
+# --- Rule 7: installation docs must match the repo's real example runtime ---
+
+
+def test_installation_doc_matches_example_runtime():
+    """The install guide should point example runners at DSPy 3.2.0 + OpenRouter."""
+    text = _read(DOCS / "installation.md")
+    assert "dspy-ai>=3.1.0" not in text, (
+        "`docs/installation.md` still mentions the stale `dspy-ai>=3.1.0` "
+        "example runtime requirement."
+    )
+    assert "OPENROUTER_API_KEY" in text, (
+        "`docs/installation.md` should mention `OPENROUTER_API_KEY` for the "
+        "end-to-end examples under `examples/`."
+    )
+    assert ('"dspy==3.2.0"' in text or "`dspy==3.2.0`" in text or "pip install dspy" in text), (
+        "`docs/installation.md` should show the tested DSPy 3.2.0 install path."
+    )
+    assert "UV_EXCLUDE_NEWER" in text, (
+        "`docs/installation.md` should document the `UV_EXCLUDE_NEWER` gotcha "
+        "that can hide DSPy 3.2.0 from `uv run --with dspy`."
+    )
+
+
+# --- Rule 8: release status docs must not claim all examples are still 3.1.3 -
+
+
+def test_example_status_docs_reflect_the_3_2_refresh():
+    """README docs should not claim every committed example artifact is still historical."""
+    checks = {
+        REPO / "README.md": (
+            re.compile(r"all .*example.*artifacts.*3\.1\.3", re.IGNORECASE),
+            re.compile(
+                r"full live re-benchmarking is the next release follow-up",
+                re.IGNORECASE,
+            ),
+        ),
+        REPO / "examples" / "README.md": (
+            re.compile(
+                r"keeps .*live results as historical artifacts",
+                re.IGNORECASE,
+            ),
+        ),
+    }
+
+    offenders: list[str] = []
+    for path, stale_patterns in checks.items():
+        text = _read(path)
+        for pattern in stale_patterns:
+            if pattern.search(text):
+                offenders.append(
+                    f"{path.relative_to(REPO)}: matches stale-status pattern `{pattern.pattern}`"
+                )
+
+    assert not offenders, (
+        "Release-status docs still describe the old pre-refresh example state:\n  "
+        + "\n  ".join(offenders)
     )

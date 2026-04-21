@@ -1,6 +1,6 @@
 # `dspy.RLM` — Reference
 
-Source: https://dspy.ai/api/modules/RLM/ (DSPy 3.1.x).
+Source: https://dspy.ai/api/modules/RLM/ (DSPy 3.2.x).
 
 ## Constructor
 
@@ -9,7 +9,7 @@ dspy.RLM(
     signature: type[Signature] | str,
     max_iterations: int = 20,
     max_llm_calls: int = 50,
-    max_output_chars: int = 100_000,
+    max_output_chars: int = 10_000,
     verbose: bool = False,
     tools: list[Callable] | None = None,
     sub_lm: dspy.LM | None = None,
@@ -24,7 +24,7 @@ dspy.RLM(
 | `signature` | required | Standard DSPy signature (string or class) |
 | `max_iterations` | 20 | Max REPL steps before returning |
 | `max_llm_calls` | 50 | Hard cap across the whole RLM invocation |
-| `max_output_chars` | 100_000 | Truncates each REPL stdout blob before it reaches the LM |
+| `max_output_chars` | 10_000 | Truncates each REPL stdout blob before it reaches the LM |
 | `verbose` | False | Stream thought/code/output to stdout |
 | `tools` | None | Python callables exposed inside the sandbox |
 | `sub_lm` | None → `dspy.settings.lm` | Model used for internal recursive calls |
@@ -38,7 +38,7 @@ To use a custom runtime, subclass `dspy.utils.CodeInterpreter` and implement `ex
 
 ## Tools
 
-Tools are regular Python callables. DSPy introspects type hints and docstrings to expose them to the LLM:
+Tools are regular Python callables. DSPy introspects type hints and docstrings to expose them to the LLM. In DSPy 3.2.x, tool dispatch is kwargs-only, so use explicit named parameters:
 
 ```python
 def read_file(path: str) -> str:
@@ -64,5 +64,5 @@ Calling `rlm(...)` returns a `dspy.Prediction` with the signature's output field
 | `deno: command not found` | Install Deno. |
 | `RLM hit max_iterations` | Raise `max_iterations`, or narrow the query. |
 | `Sub-LM call count exceeded` | Raise `max_llm_calls`; check for infinite recursion in tools. |
-| `Output truncated at 100000 chars` | Raise `max_output_chars`, or have the LM sample/aggregate. |
+| `Output truncated at 10000 chars` | Raise `max_output_chars`, or have the LM sample/aggregate. |
 | `KeyError` in final `.answer` | The RLM gave up; print `verbose=True` trace to see why. |

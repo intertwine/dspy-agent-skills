@@ -4,7 +4,7 @@ Guidance for Claude Code (or any agent) working inside this repo.
 
 ## What this repo is
 
-A pack of five agent skills that teaches coding agents to build, optimize, and ship DSPy 3.1.x programs. It is designed to install cleanly into both **Claude Code** (`~/.claude/skills/`) and **Codex CLI** (`~/.agents/skills/`).
+A pack of five agent skills that teaches coding agents to build, optimize, and ship DSPy 3.2.x programs. It is designed to install cleanly into both **Claude Code** (`~/.claude/skills/`) and **Codex CLI** (`~/.agents/skills/`).
 
 The skills themselves are in `skills/<name>/SKILL.md`. The product is Markdown; Python files in `skills/*/example_*.py` are runnable smoke tests, not library code.
 
@@ -21,7 +21,7 @@ docs/              # installation.md, usage.md, CHANGELOG.md
 ## Commands you'll actually run
 
 ```bash
-# Validate all skill metadata, manifests, example syntax, and skill-doc correctness (60 tests)
+# Validate all skill metadata, manifests, example syntax, and skill-doc correctness (80+ tests)
 uv run --with pytest python -m pytest tests/ -v
 
 # Smoke-test every example offline (no API key needed)
@@ -36,6 +36,12 @@ for f in skills/*/example_*.py; do uv run --with dspy python "$f" --dry-run; don
 # Live GEPA run (requires OPENAI_API_KEY)
 cd skills/dspy-advanced-workflow
 OPENAI_API_KEY=... uv run --with dspy python example_pipeline.py --auto light
+```
+
+If `uv run --with dspy` unexpectedly resolves DSPy `3.1.3`, check for `UV_EXCLUDE_NEWER` or another resolver policy that hides recent uploads. For an exact DSPy 3.2.0 validation run, use:
+
+```bash
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 python -c 'import dspy; print(dspy.__version__)'
 ```
 
 ## Authoring / editing conventions
@@ -59,14 +65,14 @@ Keep `SKILL.md` focused and under ~500 lines. Push deep API detail into `referen
 
 ### Grounding claims
 
-Every DSPy API claim must be verifiable against https://dspy.ai/ for DSPy 3.1.x. If you update a signature or parameter, re-check the docs and update `reference.md` in lockstep.
+Every DSPy API claim must be verifiable against https://dspy.ai/ for DSPy 3.2.x. If you update a signature or parameter, re-check the docs and update `reference.md` in lockstep.
 
 ### When adding a new skill
 
 1. Create `skills/<new-name>/SKILL.md` with spec-compliant frontmatter.
 2. Add `reference.md` for the longer-form API detail.
 3. Add at least one `example_*.py` with a `--dry-run` path that constructs the relevant DSPy objects without calling an LM.
-4. Run `uv run --with pytest python -m pytest tests/ -v` — all 60+ tests must pass. Frontmatter, correctness, and docs-completeness guards will catch drift automatically.
+4. Run `uv run --with pytest python -m pytest tests/ -v` — all 80+ tests must pass. Frontmatter, correctness, and docs-completeness guards will catch drift automatically.
 5. Update the skill table in `README.md` and `docs/usage.md`.
 6. Bump `version` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
 7. Add a `docs/CHANGELOG.md` entry describing what changed and why.

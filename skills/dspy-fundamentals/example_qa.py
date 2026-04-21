@@ -1,4 +1,4 @@
-"""Minimal DSPy 3.1.x QA program — runnable as a smoke test.
+"""Minimal DSPy 3.2.x QA program — runnable as a smoke test.
 
 Usage:
     uv run python example_qa.py --dry-run         # syntax/import check only

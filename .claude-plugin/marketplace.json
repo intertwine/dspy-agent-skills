@@ -8,8 +8,8 @@
     {
       "name": "dspy-agent-skills",
       "source": "./",
-      "description": "Production-grade DSPy 3.1.x skills: fundamentals, evaluation, GEPA, RLM, and end-to-end workflow.",
-      "version": "0.1.0",
+      "description": "Production-grade DSPy 3.2.x skills: fundamentals, evaluation, GEPA, BetterTogether, RLM, and end-to-end workflow.",
+      "version": "0.2.0",
       "author": {
         "name": "Bryan Young",
         "email": "bryan@intertwinesys.com"

@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.2.0 — 2026-04-21
+
+DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, references, manifests, and regression guards from DSPy 3.1.x assumptions to the real DSPy 3.2.0 surface, while adding a concrete example for the biggest new optimizer-facing capability.
+
+### Highlights
+
+- Retargeted the repo from DSPy 3.1.x / 3.1.3 to DSPy 3.2.x / 3.2.0 across README, skill docs, manifests, and maintainer guidance.
+- Added `skills/dspy-gepa-optimizer/example_bettertogether.py`, a dry-run-capable example of DSPy 3.2.0's generalized `dspy.BetterTogether(metric=..., bootstrap=..., gepa=...)` API.
+- Updated `dspy-fundamentals` to document 3.2.x type-mismatch warnings, `warn_on_type_mismatch=False`, and the new `dspy.BaseLM` capability/`ContextWindowExceededError` guidance for custom backends.
+- Updated `dspy-rlm-module` for DSPy 3.2.0's `max_output_chars=10_000` default and kwargs-only tool dispatch.
+- Updated `dspy-gepa-optimizer` to explain the new BetterTogether chaining model while keeping plain GEPA as the default recommendation.
+- Added a regression guard against stale BetterTogether constructor guidance and flipped the RLM default guard to the 3.2.0 value.
+- Refreshed `examples/01-rag-qa` and `examples/02-math-reasoning` with clean DSPy 3.2.0 live reruns, and added per-example `version_comparison.{md,json}` files to make the old-vs-new story explicit.
+- Kept `examples/03-invoice-extraction` on its historical DSPy 3.1.3 artifact, with the 3.2.0 probe sweep documented instead of forcing a misleading saturated or unstable rerun.
+- Validated the install path end to end, including `scripts/install.sh --dry-run`, a temp-`HOME` install, and new guidance for `UV_EXCLUDE_NEWER` when `uv` hides DSPy 3.2.0.
+
+### Validation
+
+- `uv run --with pytest python -m pytest tests/ -v` → full suite passed
+- All 6 skill examples executed via `--dry-run` under DSPy 3.2.0
+- All 3 end-to-end examples executed via `--dry-run` under DSPy 3.2.0
+- Live reruns under DSPy 3.2.0:
+  - `examples/01-rag-qa` → `75.77 -> 100.00` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/02-math-reasoning` → `85.00 -> 93.33` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/03-invoice-extraction` → probe sweep recorded saturation or instability; historical artifact retained
+- `scripts/install.sh --dry-run` and a temp-`HOME` install both matched the documented dual-target install flow
+- During release prep, local `uv run --with dspy` still resolved DSPy `3.1.3` on this machine, so the 3.2.0 smoke tests were run in an isolated environment installed from the official 3.2.0 wheel.
+
 ## v0.1.0 — 2026-04-19
 
 First published release. Synthesis and correction of the initial `PLAN.md` draft into a spec-compliant pack that installs cleanly in Claude Code and Codex CLI.

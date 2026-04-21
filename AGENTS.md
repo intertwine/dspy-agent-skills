@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository packages DSPy 3.1.x agent skills for Claude Code, Codex CLI, and other agentskills.io-compatible tools. The main product lives in `skills/`: each `skills/<skill-name>/` directory contains a required `SKILL.md`, optional `reference.md`, and runnable `example_*.py` files. End-to-end validation demos live in `examples/`, with shared helpers in `examples/common/` and per-demo data under `examples/*/data/`. Tests are in `tests/`, distribution metadata is in `.claude-plugin/`, installation tooling is in `scripts/`, and contributor/user docs are in `docs/`.
+This repository packages DSPy 3.2.x agent skills for Claude Code, Codex CLI, and other agentskills.io-compatible tools. The main product lives in `skills/`: each `skills/<skill-name>/` directory contains a required `SKILL.md`, optional `reference.md`, and runnable `example_*.py` files. End-to-end validation demos live in `examples/`, with shared helpers in `examples/common/` and per-demo data under `examples/*/data/`. Tests are in `tests/`, distribution metadata is in `.claude-plugin/`, installation tooling is in `scripts/`, and contributor/user docs are in `docs/`.
 
 ## Build, Test, and Development Commands
 
@@ -11,6 +11,8 @@ This repository packages DSPy 3.1.x agent skills for Claude Code, Codex CLI, and
 - `./scripts/install.sh` symlinks skills into both `~/.claude/skills/` and `~/.agents/skills/`.
 - `./scripts/install.sh --uninstall` removes those local installs.
 - `DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free uv run --with dspy --with python-dotenv python examples/02-math-reasoning/run.py --optimize --auto light --seed 0` runs a live GEPA example.
+
+If `uv run --with dspy` resolves DSPy `3.1.3`, check for a local resolver policy such as `UV_EXCLUDE_NEWER`. The exact DSPy 3.2.0 override validated in this repo is `env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 ...`.
 
 ## Coding Style & Naming Conventions
 

@@ -26,7 +26,7 @@ def build_rlm(sub_model: str | None = None):
         "context, query -> answer",
         max_iterations=10,
         max_llm_calls=20,
-        max_output_chars=100_000,
+        max_output_chars=10_000,
         sub_lm=sub_lm,
         verbose=False,
     )
@@ -64,7 +64,10 @@ def main() -> int:
         print(f"    inputs:  {sig_in}")
         print(f"    outputs: {sig_out}")
         print(
-            f"    max_iterations={rlm.max_iterations} max_llm_calls={rlm.max_llm_calls}"
+            "    "
+            f"max_iterations={rlm.max_iterations} "
+            f"max_llm_calls={rlm.max_llm_calls} "
+            f"max_output_chars={rlm.max_output_chars}"
         )
         return 0
 

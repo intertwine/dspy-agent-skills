@@ -1,0 +1,40 @@
+{
+  "example": "02-math-reasoning",
+  "comparison_date": "2026-04-21",
+  "status": "refreshed",
+  "historical_artifact": {
+    "dspy": "3.1.3",
+    "task_model": "openrouter/liquid/lfm-2.5-1.2b-instruct:free",
+    "reflection_model": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "auto": "light",
+    "seed": 0,
+    "trainset_size": 34,
+    "valset_size": 12,
+    "baseline_score": 45.0,
+    "optimized_score": 70.0,
+    "improvement": 25.0,
+    "baseline_seconds": 0.2,
+    "optimize_seconds": 1399.9,
+    "eval_seconds": 0.1
+  },
+  "current_artifact": {
+    "dspy": "3.2.0",
+    "task_model": "openrouter/mistralai/ministral-3b-2512",
+    "reflection_model": "openrouter/qwen/qwen3-30b-a3b-instruct-2507",
+    "auto": "light",
+    "seed": 0,
+    "trainset_size": 34,
+    "valset_size": 12,
+    "baseline_score": 85.0,
+    "optimized_score": 93.33,
+    "improvement": 8.33,
+    "baseline_seconds": 21.9,
+    "optimize_seconds": 210.7,
+    "eval_seconds": 0.0
+  },
+  "notes": [
+    "The refreshed artifact uses a much stronger paid task model than the historical DSPy 3.1.3 free-tier artifact.",
+    "Absolute performance improved, but the visible GEPA headroom shrank because the stronger baseline left fewer easy gains.",
+    "The refreshed optimized_program.json metadata now records dspy 3.2.0."
+  ]
+}

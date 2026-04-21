@@ -4,7 +4,7 @@ description: Build DSPy evaluation harnesses with rich-feedback metrics that are
 when_to_use: User mentions `dspy.Evaluate`, a "metric", a devset/valset/trainset, evaluation, scoring, or asks why their GEPA optimization isn't converging (almost always: their metric is too thin).
 ---
 
-# DSPy Evaluation Harness (3.1.x)
+# DSPy Evaluation Harness (3.2.x)
 
 The metric is usually more important than the program. For `dspy.GEPA` especially, the quality of **textual feedback** in your metric determines whether optimization converges.
 

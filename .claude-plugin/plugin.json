@@ -1,7 +1,7 @@
 {
   "name": "dspy-agent-skills",
-  "version": "0.1.0",
-  "description": "Production-grade DSPy 3.1.x skills for coding agents: signatures, modules, evaluation harnesses, GEPA optimization, RLM long-context reasoning, and a full end-to-end DSPy workflow.",
+  "version": "0.2.0",
+  "description": "Production-grade DSPy 3.2.x skills for coding agents: signatures, modules, evaluation harnesses, GEPA optimization, RLM long-context reasoning, BetterTogether chaining, and a full end-to-end DSPy workflow.",
   "author": {
     "name": "Bryan Young",
     "email": "bryan@intertwinesys.com"

@@ -25,7 +25,7 @@ That's what [dspy-agent-skills](https://github.com/intertwine/dspy-agent-skills)
 
 The payoff, from the original paper: DSPy pipelines "outperform standard few-shot prompting (generally by over 25% and 65%) and pipelines with expert-created demonstrations (by up to 5–46% and 16–40%)" on GPT-3.5 and Llama2-13B.
 
-By DSPy 3.1.x (current as of April 2026), the framework has absorbed GEPA and RLM, a typed-signature system that respects Pydantic models, and the plumbing you actually need in production: caching, tracing, checkpointed optimizer state, MLflow hooks.
+By DSPy 3.2.0 (released April 21, 2026), the framework has absorbed GEPA and RLM, added more flexible `BetterTogether` chaining, tightened type/debugging ergonomics, and shipped the plumbing you actually need in production: caching, tracing, checkpointed optimizer state, MLflow hooks.
 
 ### GEPA — reflective prompt evolution, instead of RL
 
@@ -41,7 +41,7 @@ The catch: GEPA only works if your metric can explain *why* something failed. A 
 
 Alex Zhang's [origin blog post](https://alexzhang13.github.io/blog/2025/rlm/) frames it well. RLMs separate *variable space* (what's in the REPL's memory) from *token space* (what the LM actually sees), and that separation is the real lever for fighting what the field has started calling context rot.
 
-![alt: diagram showing three DSPy 3.1.x building blocks — typed Signature feeding GEPA for optimization and RLM for long context — forming a pipeline into an optimized saved program](placeholder-pipeline-diagram.png)
+![alt: diagram showing three DSPy 3.2.x building blocks — typed Signature feeding GEPA for optimization and RLM for long context — forming a pipeline into an optimized saved program](placeholder-pipeline-diagram.png)
 <!-- IMAGE PROMPT (Nano Banana): "A clean technical diagram showing three labeled building blocks connecting left to right: 1) a document icon labeled 'typed Signature + dspy.Module' 2) a circular arrow labeled 'GEPA reflective optimizer' containing smaller icons of a mutation and a Pareto frontier curve 3) a nested REPL window labeled 'RLM long-context reasoning'. Arrows flow between them into a final box labeled 'optimized_program.json'. Editorial tech-magazine style, monochrome line art on off-white paper background, subtle blue accent for arrows, annotation labels in a clean mono typeface. 16:9." -->
 
 ## Why a skill pack specifically

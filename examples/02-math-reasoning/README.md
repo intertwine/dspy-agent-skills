@@ -6,16 +6,17 @@ Grade-school word problems with compound percentages, work-rate, weighted averag
 
 | Metric | Baseline | Optimized | Δ |
 |---|---:|---:|---:|
-| Exact-match (numeric) | 45.00 | **70.00** | **+25.00** |
+| Exact-match (numeric) | 85.00 | **93.33** | **+8.33** |
 
-- **Task LM**: `openrouter/liquid/lfm-2.5-1.2b-instruct:free` (Liquid LFM 2.5, 1.2B, $0)
-- **Reflection LM**: `openrouter/nvidia/nemotron-3-super-120b-a12b:free` ($0)
+- **Task LM**: `openrouter/mistralai/ministral-3b-2512`
+- **Reflection LM**: `openrouter/qwen/qwen3-30b-a3b-instruct-2507`
 - **GEPA mode**: `auto="light"`, seed=0
 - **Trainset**: 34 · **valset**: 12
-- **Runtime**: ~23 min on free tier
-- **Artifact**: `optimized_program.json`
+- **Runtime**: ~3.5 min
+- **Artifact**: `optimized_program.json` (DSPy `3.2.0` metadata)
+- **Comparison**: [`version_comparison.md`](version_comparison.md)
 
-GEPA ran 23 iterations, **accepted 5 mutations** (iters 2, 3, 4, 6, 10), landing candidate 4 (valset score 0.70) as the winner.
+The refreshed DSPy `3.2.0` artifact uses a stronger paid task model than the historical DSPy `3.1.3` free-tier run, so the absolute optimized score is much higher but the visible GEPA headroom is smaller. That tradeoff is documented directly in `version_comparison.md`.
 
 ## Task
 
@@ -42,24 +43,34 @@ Exact-match on the parsed numeric answer, with 0.2 partial credit for near-misse
 
 ```bash
 # Smoke test
-uv run --with dspy --with python-dotenv python examples/02-math-reasoning/run.py --dry-run
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 --with python-dotenv python examples/02-math-reasoning/run.py --dry-run
 
-# Baseline
-DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free \
-  uv run --with dspy --with python-dotenv python examples/02-math-reasoning/run.py --baseline
+# Exact committed baseline
+env -u UV_EXCLUDE_NEWER \
+  DSPY_TASK_MODEL=openrouter/mistralai/ministral-3b-2512 \
+  DSPY_REFLECTION_MODEL=openrouter/qwen/qwen3-30b-a3b-instruct-2507 \
+  DSPY_EXAMPLE_NUM_THREADS=1 \
+  DSPY_EXAMPLE_NUM_RETRIES=8 \
+  uv run --with dspy==3.2.0 --with python-dotenv \
+  python examples/02-math-reasoning/run.py --baseline
 
-# Full GEPA run (~20-50 min on free tier)
-DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free \
-  uv run --with dspy --with python-dotenv \
+# Exact committed GEPA run
+rm -rf examples/02-math-reasoning/gepa_logs
+env -u UV_EXCLUDE_NEWER \
+  DSPY_TASK_MODEL=openrouter/mistralai/ministral-3b-2512 \
+  DSPY_REFLECTION_MODEL=openrouter/qwen/qwen3-30b-a3b-instruct-2507 \
+  DSPY_EXAMPLE_NUM_THREADS=1 \
+  DSPY_EXAMPLE_NUM_RETRIES=8 \
+  uv run --with dspy==3.2.0 --with python-dotenv \
   python examples/02-math-reasoning/run.py --optimize --auto light --seed 0
 ```
 
-## Why Liquid 1.2B is the right task LM
+## Why Ministral 3B is the current committed task LM
 
-This example is a deliberate **weaker-task-LM showcase**. On stronger models (GLM 4.5 Air, Ministral 8B, Nemotron Nano 9B) the trainset baseline is already 0.83–0.93, leaving GEPA with so few failures that every minibatch is all-perfect and the reflection LM is never called. The 1.2B Liquid model creates real headroom — it fails on enough compound-operation problems that GEPA can find structural instruction improvements worth +25 points.
+`openrouter/mistralai/ministral-3b-2512` was the fastest paid task model we tested that still left non-trivial headroom on the released dataset. The baseline jumped from the old `45.00` free-tier artifact to `85.00`, but GEPA still improved it to `93.33` by tightening the solver prompt around operation order, units, and trap avoidance.
 
-If you swap in a bigger task LM, don't be surprised by a saturated baseline with +0.00 improvement — that's a feature of the task/model combo, not a GEPA bug.
+If you want the old "weak model with huge lift" story, the historical DSPy `3.1.3` artifact in `version_comparison.md` still shows it clearly. The current committed artifact instead prioritizes a clean DSPy `3.2.0` rerun with a model that is still improvable but much less rate-limit-prone.
 
 ## Reproducibility
 
-`seed=0`, `auto="light"`, Liquid 1.2B + Nemotron-3 120B both free. **$0** reproduction. Run.py sets `num_threads=1` and `num_retries=12` by default to be polite with the 20 req/min free-tier cap. Even with hardening, expect occasional 429s — they retry automatically with backoff.
+`seed=0`, `auto="light"`, DSPy `3.2.0`, and the paid model pair above reproduce the committed artifact. `run.py` now shares the same `num_threads` and retry hardening as the other examples through `examples/common/config.py`, and GEPA will resume from `gepa_logs/gepa_state.bin` unless you clear it first.
