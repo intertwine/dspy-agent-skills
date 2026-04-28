@@ -1,7 +1,10 @@
 ---
 name: dspy-evaluation-harness
 description: Build DSPy evaluation harnesses with rich-feedback metrics that are essential for GEPA optimization. Use when writing a metric function, calling dspy.Evaluate, splitting dev/val sets, debugging "why is my optimizer not improving?", or designing CI-ready DSPy eval suites.
-when_to_use: User mentions `dspy.Evaluate`, a "metric", a devset/valset/trainset, evaluation, scoring, or asks why their GEPA optimization isn't converging (almost always: their metric is too thin).
+when_to_use: >-
+  User mentions `dspy.Evaluate`, a "metric", a devset/valset/trainset,
+  evaluation, scoring, or asks why their GEPA optimization isn't converging
+  (almost always: their metric is too thin).
 ---
 
 # DSPy Evaluation Harness (3.2.x)

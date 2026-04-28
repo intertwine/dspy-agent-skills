@@ -1,6 +1,6 @@
 # Installation
 
-Three installation paths, from easiest to most manual. All of them install the same 5 skills.
+Four installation paths, from easiest to most manual. All of them install the same 5 skills.
 
 ## 1. Claude Code: plugin marketplace (recommended)
 
@@ -13,7 +13,24 @@ From inside Claude Code:
 
 The marketplace manifest lives at `.claude-plugin/marketplace.json` and the plugin at `.claude-plugin/plugin.json`. Claude Code caches the plugin under `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` and enables it in the current project scope.
 
-## 2. Both Claude Code and Codex: `install.sh`
+## 2. Any supported agent: `npx skills`
+
+Use the Vercel `skills` CLI when you want one command that targets Codex, Claude Code, Cursor, OpenCode, or another supported agent:
+
+```bash
+# Preview what the CLI can discover
+npx skills add intertwine/dspy-agent-skills --list
+
+# Install all DSPy skills into this project for Codex
+npx skills add intertwine/dspy-agent-skills --skill '*' -a codex -y
+
+# Install all DSPy skills globally for Claude Code
+npx skills add intertwine/dspy-agent-skills --skill '*' -a claude-code -g -y
+```
+
+The source string is important. Current `skills` CLI releases accept GitHub shorthand in `owner/repo` form, full GitHub/GitLab/git URLs, well-known HTTPS skill indexes, and local paths. They do **not** resolve the bare package-style name `dspy-agent-skills`; `npx skills add dspy-agent-skills` currently tries to clone a repository literally named `dspy-agent-skills` and fails. If the upstream CLI adds an alias for this library later, the shorter form can be documented then.
+
+## 3. Both Claude Code and Codex: `install.sh`
 
 Clone the repo and run the installer. Symlink mode (default) is idempotent and forwards repo edits live:
 
@@ -30,7 +47,7 @@ cd dspy-agent-skills
 
 Restart your agent (or `/reload` in Claude Code) after installing. Skills are discovered by scanning `~/.claude/skills/` (Claude) and `~/.agents/skills/` (Codex) for any directory containing a `SKILL.md`.
 
-## 3. Manual
+## 4. Manual
 
 ### Claude Code
 

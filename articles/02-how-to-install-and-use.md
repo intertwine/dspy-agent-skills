@@ -20,7 +20,7 @@ For running the bundled examples, also install **Python 3.10+** and **[uv](https
 
 Nothing to install for the skills themselves. They're Markdown files your agent loads automatically once they're in the right directory.
 
-## Install — three paths
+## Install — four paths
 
 ### Path 1: Claude Code plugin marketplace
 
@@ -33,7 +33,18 @@ Inside Claude Code:
 
 Claude Code fetches the repo, caches it under `~/.claude/plugins/cache/`, and wires the skills into the current project. The plugin manifest at `.claude-plugin/plugin.json` tells Claude Code what's inside. You can `/plugin update dspy-agent-skills` later to pull new versions.
 
-### Path 2: `install.sh` — both Claude Code and Codex CLI at once
+### Path 2: `npx skills` — any supported coding agent
+
+If you already use the Vercel `skills` CLI:
+
+```bash
+npx skills add intertwine/dspy-agent-skills --list
+npx skills add intertwine/dspy-agent-skills --skill '*' -a codex -y
+```
+
+Use the GitHub shorthand with the owner: `intertwine/dspy-agent-skills`. Current `skills` CLI releases do not resolve the bare package-style source `dspy-agent-skills`; that shorter form would need an upstream alias in the CLI.
+
+### Path 3: `install.sh` — both Claude Code and Codex CLI at once
 
 If you use both harnesses (or just want the source on disk to hack on):
 
@@ -50,7 +61,7 @@ That symlinks `skills/*` into `~/.claude/skills/` (Claude Code) and `~/.agents/s
 - `--uninstall` to reverse the install.
 - `--dry-run` to see what would happen.
 
-### Path 3: Manual drop
+### Path 4: Manual drop
 
 ```bash
 cp -R skills/* ~/.claude/skills/   # Claude Code
@@ -59,8 +70,8 @@ cp -R skills/* ~/.agents/skills/   # Codex CLI
 
 Both harnesses auto-discover any directory containing a `SKILL.md` and register it on the next session.
 
-![alt: flowchart of the three install paths all ending at a happy coding agent](placeholder-install-flow.png)
-<!-- IMAGE PROMPT (Nano Banana): "A horizontal flowchart illustration with three parallel paths converging into a single endpoint. Left path starts with a 'Claude Code /plugin' icon. Middle path starts with a 'terminal' icon running `./scripts/install.sh`. Right path starts with a file-folder copy icon. All three paths lead to a central glowing box labeled 'agent has the DSPy skill loaded' containing a small happy robot with a speech bubble that says 'compile my program'. Off-white background, flat editorial style, paths drawn as thin hand-drawn-feeling lines in muted indigo. 16:9." -->
+![alt: flowchart of the four install paths all ending at a ready coding agent](placeholder-install-flow.png)
+<!-- IMAGE PROMPT (Nano Banana): "A horizontal flowchart illustration with four parallel paths converging into a single endpoint. Paths start with a 'Claude Code /plugin' icon, a terminal running `npx skills add`, a terminal running `./scripts/install.sh`, and a file-folder copy icon. All four paths lead to a central glowing box labeled 'agent has the DSPy skill loaded' with a speech bubble that says 'compile my program'. Off-white background, flat editorial style, paths drawn as thin hand-drawn-feeling lines in muted indigo. 16:9." -->
 
 ## Verifying the install
 

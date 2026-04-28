@@ -31,7 +31,16 @@
 /plugin install dspy-agent-skills@dspy-agent-skills
 ```
 
-### Claude Code + Codex (one command)
+### Agent Skills CLI (`npx skills`)
+
+```bash
+npx skills add intertwine/dspy-agent-skills --list
+npx skills add intertwine/dspy-agent-skills --skill '*' -a codex -y
+```
+
+The Vercel `skills` CLI currently expects a GitHub `owner/repo`, URL, well-known HTTPS endpoint, or local path as its source. The bare form `npx skills add dspy-agent-skills` is not resolvable unless the upstream CLI adds a source alias, so use `intertwine/dspy-agent-skills`.
+
+### Claude Code + Codex (repo checkout)
 
 ```bash
 git clone https://github.com/intertwine/dspy-agent-skills
@@ -122,7 +131,7 @@ dspy-agent-skills/
 
 ## Version
 
-**v0.2.0** • Targets DSPy 3.2.x
+**v0.2.1** • Targets DSPy 3.2.x
 
 ## License
 

@@ -67,6 +67,25 @@ def _parse_frontmatter(text: str) -> dict[str, str]:
     return out
 
 
+def _frontmatter_block(text: str) -> str:
+    if not text.startswith("---\n"):
+        raise AssertionError("SKILL.md must start with a YAML frontmatter block '---'.")
+    end = text.find("\n---\n", 4)
+    assert end != -1, "Missing closing '---' for frontmatter."
+    return text[4:end]
+
+
+def _is_inline_plain_scalar(value: str) -> bool:
+    value = value.strip()
+    if not value:
+        return False
+    if value in {">", ">-", ">+", "|", "|-", "|+"}:
+        return False
+    if value.startswith(("'", '"', "[", "{")):
+        return False
+    return True
+
+
 def _skill_dirs() -> list[Path]:
     return sorted(p for p in SKILLS_DIR.iterdir() if p.is_dir())
 
@@ -103,6 +122,35 @@ def test_frontmatter_valid(skill_dir: Path):
         f"{skill_dir}: forbidden fields {banned}. These are ignored by Claude Code "
         f"and Codex — move version/compatibility to plugin.json, use `description` "
         f"instead of `triggers`."
+    )
+
+
+@pytest.mark.parametrize("skill_dir", _skill_dirs(), ids=lambda p: p.name)
+def test_frontmatter_plain_scalars_are_yaml_safe(skill_dir: Path):
+    """Guard compatibility with strict YAML frontmatter parsers.
+
+    The `npx skills` CLI uses a real YAML parser and skips skills whose
+    frontmatter cannot parse. In inline plain scalars, `: ` starts a mapping,
+    so values with human prose containing colon-space need quotes or a block
+    scalar.
+    """
+
+    block = _frontmatter_block((skill_dir / "SKILL.md").read_text(encoding="utf-8"))
+    offenders: list[str] = []
+    for line_no, line in enumerate(block.splitlines(), 2):
+        if line.startswith(" "):
+            continue
+        m = re.match(r"^([A-Za-z][A-Za-z0-9_-]*)\s*:\s*(.*)$", line)
+        if not m:
+            continue
+        value = m.group(2)
+        if _is_inline_plain_scalar(value) and ": " in value:
+            offenders.append(f"{skill_dir / 'SKILL.md'}:{line_no}: {line.strip()}")
+
+    assert not offenders, (
+        "Inline YAML frontmatter values containing `: ` must be quoted or written "
+        "as block scalars for npx skills compatibility:\n  "
+        + "\n  ".join(offenders)
     )
 
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.1 — 2026-04-28
+
+### Installation
+
+- Documented the supported Vercel `skills` CLI install path: `npx skills add intertwine/dspy-agent-skills`.
+- Clarified that current `skills` CLI releases do not resolve the bare package-style source `dspy-agent-skills`; that would require an upstream source alias.
+- Fixed `dspy-evaluation-harness` frontmatter so strict YAML parsers used by `npx skills` discover all five skills.
+- Added a regression guard for inline YAML frontmatter values containing `: `, which can make strict parsers skip a skill.
+
 ## v0.2.0 — 2026-04-21
 
 DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, references, manifests, and regression guards from DSPy 3.1.x assumptions to the real DSPy 3.2.0 surface, while adding a concrete example for the biggest new optimizer-facing capability.
