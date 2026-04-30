@@ -10,6 +10,7 @@
 #   scripts/install.sh --codex-only         # only Codex
 #   scripts/install.sh --copy               # copy instead of symlink (default: symlink)
 #   scripts/install.sh --uninstall          # remove installed skills
+#   scripts/install.sh --verify             # check installed skills are present and valid
 #   scripts/install.sh --dry-run            # print actions, do nothing
 #
 # Symlinks are preferred: edits to this repo propagate to installed skills without re-running.
@@ -27,6 +28,7 @@ DO_CODEX=1
 MODE="link"   # link | copy
 UNINSTALL=0
 DRY_RUN=0
+VERIFY=0
 
 log() { printf "  %s\n" "$*"; }
 run() {
@@ -44,6 +46,7 @@ for arg in "$@"; do
         --copy)        MODE="copy" ;;
         --link)        MODE="link" ;;
         --uninstall)   UNINSTALL=1 ;;
+        --verify)      VERIFY=1 ;;
         --dry-run)     DRY_RUN=1 ;;
         -h|--help)
             sed -n '2,15p' "$0"; exit 0 ;;
@@ -93,6 +96,51 @@ install_into() {
         log "$name → $tgt"
     done
 }
+
+verify_dest() {
+    local dest="$1"
+    local label="$2"
+    local fails=0
+
+    if [[ ! -d "$dest" ]]; then
+        echo "FAIL: $label skill directory does not exist ($dest)"
+        return 1
+    fi
+
+    echo "Verifying $label ($dest)..."
+    for name in "${skills[@]}"; do
+        local tgt="$dest/$name"
+        if [[ -L "$tgt" ]]; then
+            local link_target
+            link_target="$(readlink -f "$tgt")"
+            if [[ -d "$link_target" && -f "$link_target/SKILL.md" ]]; then
+                log "OK   $name → $link_target (symlink)"
+            else
+                log "FAIL $name → symlink target missing or has no SKILL.md"
+                fails=$((fails + 1))
+            fi
+        elif [[ -d "$tgt" && -f "$tgt/SKILL.md" ]]; then
+            log "OK   $name (copy)"
+        else
+            log "FAIL $name — not found"
+            fails=$((fails + 1))
+        fi
+    done
+    return "$fails"
+}
+
+if [[ $VERIFY -eq 1 ]]; then
+    exit_code=0
+    [[ $DO_CLAUDE -eq 1 ]] && { verify_dest "$CLAUDE_DEST" "Claude Code" || exit_code=1; }
+    [[ $DO_CODEX -eq 1 ]]  && { verify_dest "$CODEX_DEST"  "Codex CLI"   || exit_code=1; }
+    echo
+    if [[ $exit_code -eq 0 ]]; then
+        echo "All skills verified."
+    else
+        echo "Some skills failed verification — see above."
+    fi
+    exit "$exit_code"
+fi
 
 [[ $DO_CLAUDE -eq 1 ]] && install_into "$CLAUDE_DEST" "Claude Code"
 [[ $DO_CODEX -eq 1 ]]  && install_into "$CODEX_DEST"  "Codex CLI"

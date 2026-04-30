@@ -70,9 +70,15 @@ Codex also scans `.agents/skills/` walking up from cwd to repo root, so project-
 ## Verifying the install
 
 ```bash
-# Claude Code
+# Automated check (validates each skill is present and has a SKILL.md)
+./scripts/install.sh --verify
+
+# Or check a single target
+./scripts/install.sh --verify --claude-only
+./scripts/install.sh --verify --codex-only
+
+# Manual check
 ls -la ~/.claude/skills/ | grep dspy-
-# Codex
 ls -la ~/.agents/skills/ | grep dspy-
 ```
 

@@ -169,6 +169,16 @@ def test_name_matches_dir_and_is_kebab(skill_dir: Path):
 
 
 @pytest.mark.parametrize("skill_dir", _skill_dirs(), ids=lambda p: p.name)
+def test_reference_md_exists(skill_dir: Path):
+    """Every skill should ship a reference.md for progressive disclosure."""
+    ref = skill_dir / "reference.md"
+    assert ref.is_file(), (
+        f"{skill_dir.relative_to(REPO_ROOT)}: missing `reference.md`. Each skill "
+        f"should have a reference.md alongside SKILL.md for deeper API detail."
+    )
+
+
+@pytest.mark.parametrize("skill_dir", _skill_dirs(), ids=lambda p: p.name)
 def test_description_length(skill_dir: Path):
     fm = _parse_frontmatter((skill_dir / "SKILL.md").read_text(encoding="utf-8"))
     desc = fm["description"]
