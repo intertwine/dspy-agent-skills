@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Test suite hardening
+
+- Extended regression guards (`.overall_score`, dict metrics, stale RLM defaults, stale BetterTogether API) to cover `articles/**/*.md` in addition to `skills/` and `docs/`. Uses recursive glob for parity with the `skills/**` pattern.
+- Added version consistency test: asserts `plugin.json`, `marketplace.json`, and `README.md` all carry the same version string. Regex is anchored to the `## Version` heading to avoid false matches on changelog or prose mentions.
+- Added `reference.md` presence test: every skill directory must ship a `reference.md` for progressive disclosure.
+- Moved `_ANTIPATTERN_MARKERS` and `_is_antipattern_context()` above Rule 1 so both Rule 1 (`.overall_score`) and Rule 2 (dict metrics) share the same anti-pattern context check. Added `"enforces"` marker to allow meta-references that describe prohibitions. Dropped the overly broad `"no "` marker — `"enforces"` alone covers the article line that triggered it.
+- Test count: 87 → 105.
+
+### New content
+
+- Created `skills/dspy-advanced-workflow/reference.md` — the only skill that was missing one. Covers step-by-step failure modes, `auto` level selection, plateau debugging, export format tradeoffs, `BetterTogether` chaining, and sub-skill cross-references.
+- GEPA constructor snippet marked as a subset with pointer to the full surface in `dspy-gepa-optimizer/reference.md`.
+- `reflection_minibatch_size` guidance annotated with symptom context (plateau vs. oscillation) to avoid contradicting the advice in the GEPA optimizer reference.
+
+### Installer
+
+- Added `--verify` flag to `scripts/install.sh`: validates each expected skill exists at the destination, checks symlink targets or directory presence, and reports pass/fail per skill.
+- Updated `docs/installation.md` verification section to reference `--verify`.
+
 ## v0.2.2 — Unreleased
 
 ### Example artifacts

@@ -44,7 +44,7 @@ REPO = Path(__file__).resolve().parent.parent
 SKILLS = REPO / "skills"
 DOCS = REPO / "docs"
 EXAMPLE_PY_GLOB = "skills/*/example_*.py"
-TEACHING_FILE_GLOBS = ("skills/**/*.md", "skills/**/*.py", "docs/*.md")
+TEACHING_FILE_GLOBS = ("skills/**/*.md", "skills/**/*.py", "docs/*.md", "articles/**/*.md")
 
 # CHANGELOG describes past state ("replaced X with Y"); linting it for
 # anti-patterns would be a tautology.
@@ -70,6 +70,29 @@ def _read_json(path: Path) -> object:
     return json.loads(_read(path))
 
 
+# --- Shared anti-pattern markers (used by Rules 1 and 2) --------------------
+
+_ANTIPATTERN_MARKERS = (
+    "crashes",
+    "anti-pattern",
+    "wrong",
+    "bad",
+    "do not",
+    "don't",
+    "breaks",
+    "not a dict",
+    "dict)",  # e.g. "`{...}` (dict)" anti-pattern callout
+    "typeerror",
+    "instead of",
+    "enforces",
+)
+
+
+def _is_antipattern_context(line: str) -> bool:
+    lower = line.lower()
+    return any(m in lower for m in _ANTIPATTERN_MARKERS)
+
+
 # --- Rule 1: no `.overall_score` anywhere in teaching material -------------
 
 
@@ -79,7 +102,7 @@ def test_no_overall_score_in_teaching_material():
     for path in _iter_teaching_files():
         text = _read(path)
         for i, line in enumerate(text.splitlines(), 1):
-            if "overall_score" in line:
+            if "overall_score" in line and not _is_antipattern_context(line):
                 offenders.append(f"{path.relative_to(REPO)}:{i}: {line.strip()}")
     assert not offenders, (
         "`.overall_score` appears in skill/docs teaching material. DSPy uses "
@@ -101,25 +124,6 @@ _DICT_METRIC_PATTERNS = [
     # Prose: "returns `{"score": float, "feedback": str}`" — catch the type-sig form
     re.compile(r"\{['\"]score['\"]\s*:\s*float\s*,\s*['\"]feedback['\"]\s*:\s*str\}"),
 ]
-
-_ANTIPATTERN_MARKERS = (
-    "crashes",
-    "anti-pattern",
-    "wrong",
-    "bad",
-    "do not",
-    "don't",
-    "breaks",
-    "not a dict",
-    "dict)",  # e.g. "`{...}` (dict)" anti-pattern callout
-    "typeerror",
-    "instead of",
-)
-
-
-def _is_antipattern_context(line: str) -> bool:
-    lower = line.lower()
-    return any(m in lower for m in _ANTIPATTERN_MARKERS)
 
 
 def _line_matches_dict_metric(line: str) -> bool:

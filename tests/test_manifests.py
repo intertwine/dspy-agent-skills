@@ -55,6 +55,29 @@ def test_plugin_name_matches_marketplace_entry():
     )
 
 
+def test_version_consistent_across_manifests():
+    """plugin.json, marketplace.json, and README.md must agree on the version."""
+    plugin = json.loads(PLUGIN_MANIFEST.read_text())
+    market = json.loads(MARKETPLACE_MANIFEST.read_text())
+    readme = (REPO / "README.md").read_text()
+
+    plugin_ver = plugin["version"]
+    market_ver = market["plugins"][0]["version"]
+
+    m = re.search(r"\*\*v(\d+\.\d+\.\d+)\*\*", readme)
+    assert m, "README.md does not contain a **vX.Y.Z** version string."
+    readme_ver = m.group(1)
+
+    assert plugin_ver == market_ver, (
+        f"Version mismatch: plugin.json has {plugin_ver!r}, "
+        f"marketplace.json has {market_ver!r}"
+    )
+    assert plugin_ver == readme_ver, (
+        f"Version mismatch: plugin.json has {plugin_ver!r}, "
+        f"README.md has {readme_ver!r}"
+    )
+
+
 @pytest.mark.parametrize("path", [PLUGIN_MANIFEST, MARKETPLACE_MANIFEST])
 def test_json_is_strict(path: Path):
     # Ensure no trailing commas / comments that would break strict JSON parsers.
