@@ -3,9 +3,9 @@
   "comparison_date": "2026-04-28",
   "status": "retained_historical_artifact_after_clean_probe",
   "run_isolation": {
-    "workspace": "/tmp/dspy-refresh.OFDQCq/repo",
-    "dspy_3_1_3_cache": "/tmp/dspy-refresh.OFDQCq/repo/.cache-invoice-313",
-    "dspy_3_2_0_cache": "/tmp/dspy-refresh.OFDQCq/repo/.cache-invoice-320-baseline",
+    "workspace": "<temp workspace>/repo",
+    "dspy_3_1_3_cache": "<temp workspace>/repo/.cache-invoice-313",
+    "dspy_3_2_0_cache": "<temp workspace>/repo/.cache-invoice-320-baseline",
     "gepa_state": "examples/03-invoice-extraction/gepa_logs removed before each run",
     "temporary_repo_state": "comparison metrics copied back; temporary caches and worktree are not required by committed artifacts"
   },
@@ -53,6 +53,44 @@
       "baseline_seconds": 33.2,
       "status": "baseline_only",
       "notes": "The clean DSPy 3.2.0 baseline on the historical model pair already matched the best full-valset score observed during the interrupted DSPy 3.1.3 optimize probe, leaving little honest headroom for a replacement GEPA artifact."
+    }
+  ],
+  "dspy_3_2_probe_results": [
+    {
+      "task_model": "openrouter/meta-llama/llama-3.2-1b-instruct",
+      "baseline_score": 0.7731,
+      "reported_baseline_percent": 77.31,
+      "outcome": "abandoned_optimize",
+      "notes": "Left headroom, but optimize produced too many malformed typed outputs and became too slow/noisy to trust."
+    },
+    {
+      "task_model": "openrouter/meta-llama/llama-3.2-3b-instruct",
+      "baseline_score": 0.9833,
+      "reported_baseline_percent": 98.33,
+      "outcome": "saturated"
+    },
+    {
+      "task_model": "openrouter/google/gemma-3-4b-it",
+      "baseline_score": 1.0,
+      "reported_baseline_percent": 100.0,
+      "outcome": "saturated"
+    },
+    {
+      "task_model": "openrouter/mistralai/ministral-3b-2512",
+      "baseline_score": 1.0,
+      "reported_baseline_percent": 100.0,
+      "outcome": "saturated"
+    },
+    {
+      "task_model": "openrouter/mistralai/ministral-8b-2512",
+      "baseline_score": 1.0,
+      "reported_baseline_percent": 100.0,
+      "outcome": "saturated"
+    },
+    {
+      "task_model": "openrouter/qwen/qwen3-1.7b",
+      "outcome": "unavailable",
+      "notes": "OpenRouter returned 404: No endpoints found."
     }
   ],
   "notes": [

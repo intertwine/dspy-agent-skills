@@ -34,6 +34,7 @@ intentional anti-pattern mention, put one of the marker words (see
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -63,6 +64,10 @@ def _iter_teaching_files() -> list[Path]:
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _read_json(path: Path) -> object:
+    return json.loads(_read(path))
 
 
 # --- Rule 1: no `.overall_score` anywhere in teaching material -------------
@@ -337,4 +342,75 @@ def test_example_status_docs_reflect_the_3_2_refresh():
     assert not offenders, (
         "Release-status docs still describe the old pre-refresh example state:\n  "
         + "\n  ".join(offenders)
+    )
+
+
+# --- Rule 9: refreshed example artifacts must stay numerically coherent ----
+
+
+def test_rag_qa_results_match_clean_3_2_comparison():
+    """The RAG docs should agree on the clean DSPy 3.2.0 comparison numbers."""
+    results = _read_json(REPO / "examples" / "01-rag-qa" / "results.json")
+    comparison = _read_json(
+        REPO / "examples" / "01-rag-qa" / "version_comparison.json"
+    )
+    clean_3_2 = next(
+        run for run in comparison["runs"] if run["label"] == "clean_dspy_3_2_0"
+    )
+
+    for key in ("baseline_score", "optimized_score", "improvement"):
+        assert results[key] == pytest.approx(clean_3_2[key])
+
+    baseline = f"{results['baseline_score']:.2f}"
+    optimized = f"{results['optimized_score']:.2f}"
+    delta = f"+{results['improvement']:.2f}"
+    docs = [
+        REPO / "README.md",
+        REPO / "examples" / "README.md",
+        REPO / "examples" / "01-rag-qa" / "README.md",
+        REPO / "examples" / "01-rag-qa" / "results.md",
+        REPO / "examples" / "01-rag-qa" / "version_comparison.md",
+    ]
+
+    offenders: list[str] = []
+    for path in docs:
+        text = _read(path)
+        if not all(value in text for value in (baseline, optimized, delta)):
+            offenders.append(str(path.relative_to(REPO)))
+        assert "| Metric | Baseline | Optimized | Delta |" not in text
+
+    assert not offenders, (
+        "RAG docs do not all contain the refreshed baseline/optimized/delta "
+        f"values ({baseline}, {optimized}, {delta}): " + ", ".join(offenders)
+    )
+
+
+def test_invoice_comparison_keeps_clean_and_historical_probe_records():
+    """Invoice JSON should keep both the clean probe and prior sweep evidence."""
+    comparison = _read_json(
+        REPO / "examples" / "03-invoice-extraction" / "version_comparison.json"
+    )
+
+    assert comparison["clean_probe_results"], "missing clean DSPy 3.2.0 probe records"
+    assert comparison["dspy_3_2_probe_results"], (
+        "missing historical DSPy 3.2.0 probe sweep records"
+    )
+
+
+def test_version_comparisons_do_not_commit_machine_temp_paths():
+    """Published comparison artifacts should describe isolation without /tmp state."""
+    offenders: list[str] = []
+    for path in [
+        REPO / "examples" / "01-rag-qa" / "version_comparison.json",
+        REPO / "examples" / "01-rag-qa" / "version_comparison.md",
+        REPO / "examples" / "03-invoice-extraction" / "version_comparison.json",
+        REPO / "examples" / "03-invoice-extraction" / "version_comparison.md",
+    ]:
+        text = _read(path)
+        if "/tmp/dspy-refresh" in text:
+            offenders.append(str(path.relative_to(REPO)))
+
+    assert not offenders, (
+        "Version comparison artifacts contain machine-specific temp paths: "
+        + ", ".join(offenders)
     )

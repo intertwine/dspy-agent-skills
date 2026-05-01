@@ -10,9 +10,9 @@ This refresh did **not** replace the committed invoice extraction artifact. The 
 
 ## Run isolation
 
-- Temporary worktree: `/tmp/dspy-refresh.OFDQCq/repo`
-- DSPy 3.1.3 cache: `/tmp/dspy-refresh.OFDQCq/repo/.cache-invoice-313`
-- DSPy 3.2.0 cache: `/tmp/dspy-refresh.OFDQCq/repo/.cache-invoice-320-baseline`
+- Temporary worktree: `<temp workspace>/repo`
+- DSPy 3.1.3 cache: `<temp workspace>/repo/.cache-invoice-313`
+- DSPy 3.2.0 cache: `<temp workspace>/repo/.cache-invoice-320-baseline`
 - GEPA state: `examples/03-invoice-extraction/gepa_logs` deleted before each run
 
 The clean DSPy `3.1.3` probe found a `0.944` full-valset candidate at iteration 1, then continued spending budget on malformed typed-output variants. The run was stopped rather than promoted as an incomplete compile result.

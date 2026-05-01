@@ -1,6 +1,6 @@
 # Example 01 — RAG QA Results
 
-| Metric | Baseline | Optimized | Delta |
+| Metric | Baseline | Optimized | Δ |
 |---|---:|---:|---:|
 | Overall | 80.470 | 100.000 | **+19.530** |
 

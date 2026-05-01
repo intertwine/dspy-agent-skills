@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.2 — Unreleased
+
+### Example artifacts
+
+- Re-ran `examples/01-rag-qa` as a clean DSPy 3.1.3 vs 3.2.0 comparison on the same model pair; the current clean DSPy 3.2.0 result is `80.47 -> 100.00`.
+- Kept `examples/03-invoice-extraction` on its historical DSPy 3.1.3 artifact after a clean probe: the 3.1.3 GEPA run was stopped before completion after finding a `0.944` candidate, and the 3.2.0 baseline on the same model pair already reached `0.944`.
+- Updated README, examples index, and per-example `version_comparison.{md,json}` files so the published docs describe the clean comparison path and no longer depend on `.venv-dspy313` / `.venv-dspy320` state.
+
+### Validation
+
+- `uv run --with pytest python -m pytest tests/ -v` -> full suite passed
+- Live reruns/probes:
+  - `examples/01-rag-qa` -> `80.47 -> 100.00` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/03-invoice-extraction` -> clean probe recorded `0.944` baseline under DSPy 3.2.0; historical artifact retained
+
 ## v0.2.1 — 2026-04-28
 
 ### Installation
@@ -22,8 +37,7 @@ DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, 
 - Updated `dspy-gepa-optimizer` to explain the new BetterTogether chaining model while keeping plain GEPA as the default recommendation.
 - Added a regression guard against stale BetterTogether constructor guidance and flipped the RLM default guard to the 3.2.0 value.
 - Refreshed `examples/01-rag-qa` and `examples/02-math-reasoning` with clean DSPy 3.2.0 live reruns, and added per-example `version_comparison.{md,json}` files to make the old-vs-new story explicit.
-- Re-ran `examples/01-rag-qa` as a clean DSPy 3.1.3 vs 3.2.0 comparison on the same model pair; the current clean DSPy 3.2.0 result is `80.47 -> 100.00`.
-- Kept `examples/03-invoice-extraction` on its historical DSPy 3.1.3 artifact after a clean probe: the 3.1.3 GEPA run was stopped before completion after finding a `0.944` candidate, and the 3.2.0 baseline on the same model pair already reached `0.944`.
+- Kept `examples/03-invoice-extraction` on its historical DSPy 3.1.3 artifact, with the 3.2.0 probe sweep documented instead of forcing a misleading saturated or unstable rerun.
 - Validated the install path end to end, including `scripts/install.sh --dry-run`, a temp-`HOME` install, and new guidance for `UV_EXCLUDE_NEWER` when `uv` hides DSPy 3.2.0.
 
 ### Validation
@@ -32,9 +46,9 @@ DSPy 3.2.x refresh for the skill pack. This release candidate moves the skills, 
 - All 6 skill examples executed via `--dry-run` under DSPy 3.2.0
 - All 3 end-to-end examples executed via `--dry-run` under DSPy 3.2.0
 - Live reruns under DSPy 3.2.0:
-  - `examples/01-rag-qa` → `80.47 -> 100.00` with `openrouter/mistralai/ministral-3b-2512`
+  - `examples/01-rag-qa` → `75.77 -> 100.00` with `openrouter/mistralai/ministral-3b-2512`
   - `examples/02-math-reasoning` → `85.00 -> 93.33` with `openrouter/mistralai/ministral-3b-2512`
-  - `examples/03-invoice-extraction` → clean probe recorded `0.944` baseline under DSPy 3.2.0; historical artifact retained
+  - `examples/03-invoice-extraction` → probe sweep recorded saturation or instability; historical artifact retained
 - `scripts/install.sh --dry-run` and a temp-`HOME` install both matched the documented dual-target install flow
 - During release prep, local `uv run --with dspy` still resolved DSPy `3.1.3` on this machine, so the 3.2.0 smoke tests were run in an isolated environment installed from the official 3.2.0 wheel.
 

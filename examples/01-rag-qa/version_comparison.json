@@ -3,9 +3,9 @@
   "comparison_date": "2026-04-28",
   "status": "clean_cross_version_comparison",
   "run_isolation": {
-    "workspace": "/tmp/dspy-refresh.OFDQCq/repo",
-    "dspy_3_1_3_cache": "/tmp/dspy-refresh.OFDQCq/repo/.cache-rag-313",
-    "dspy_3_2_0_cache": "/tmp/dspy-refresh.OFDQCq/repo/.cache-rag-320",
+    "workspace": "<temp workspace>/repo",
+    "dspy_3_1_3_cache": "<temp workspace>/repo/.cache-rag-313",
+    "dspy_3_2_0_cache": "<temp workspace>/repo/.cache-rag-320",
     "gepa_state": "examples/01-rag-qa/gepa_logs removed before each run",
     "temporary_repo_state": "comparison metrics copied back; temporary caches and worktree are not required by committed artifacts"
   },
@@ -21,7 +21,7 @@
       "valset_size": 10,
       "baseline_score": 86.1,
       "optimized_score": 91.75,
-      "improvement": 5.650000000000006,
+      "improvement": 5.65,
       "baseline_seconds": 11.6,
       "optimize_seconds": 906.0,
       "eval_seconds": 0.0
