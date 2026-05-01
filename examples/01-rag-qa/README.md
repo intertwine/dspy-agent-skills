@@ -6,7 +6,7 @@ Retrieve, answer, cite. The prototypical DSPy use case. A **ChainOfThought** syn
 
 | Metric | Baseline | Optimized | Δ |
 |---|---:|---:|---:|
-| Overall (weighted multi-axis) | 75.77 | **100.00** | **+24.23** |
+| Overall (weighted multi-axis) | 80.47 | **100.00** | **+19.53** |
 
 - **Task LM**: `openrouter/mistralai/ministral-3b-2512`
 - **Reflection LM**: `openrouter/qwen/qwen3-30b-a3b-instruct-2507`
@@ -16,7 +16,7 @@ Retrieve, answer, cite. The prototypical DSPy use case. A **ChainOfThought** syn
 - **Artifact**: `optimized_program.json` (DSPy `3.2.0` metadata)
 - **Comparison**: [`version_comparison.md`](version_comparison.md)
 
-This DSPy `3.2.0` rerun kept the perfect optimized score from the historical DSPy `3.1.3` artifact while moving the baseline down to `75.77`, which made the observed GEPA lift larger. The comparison is intentionally documented as a model-and-version refresh, not an apples-to-apples benchmark.
+The 2026-04-28 refresh reran DSPy `3.1.3` and `3.2.0` from clean temporary state with the same paid model pair, seed, and GEPA mode. DSPy `3.2.0` reached a perfect optimized score; DSPy `3.1.3` improved on the same setup but plateaued at `91.75`.
 
 ## Task
 
@@ -75,8 +75,8 @@ env -u UV_EXCLUDE_NEWER \
 
 ## Why Ministral 3B works here
 
-`openrouter/mistralai/ministral-3b-2512` is still small enough to leave citation-formatting mistakes on the table, but much faster and easier to rerun cleanly than the older free-tier stack. GEPA still has something real to do here: the baseline missed enough citation/format details to score `75.77`, and the optimized program recovered a perfect `100.00`.
+`openrouter/mistralai/ministral-3b-2512` is still small enough to leave citation-formatting mistakes on the table, but much faster and easier to rerun cleanly than the older free-tier stack. GEPA still has something real to do here: the clean DSPy `3.2.0` baseline missed enough citation/format details to score `80.47`, and the optimized program recovered a perfect `100.00`.
 
 ## Reproducibility
 
-`seed=0`, `auto="light"`, DSPy `3.2.0`, and the paid model pair above reproduce the committed artifact. `run.py` now hardens both the task LM and reflection LM for retries, and GEPA checkpoints to `gepa_logs/gepa_state.bin`. Delete `gepa_logs/` before cross-version reruns if you want a fresh compile instead of a resume.
+`seed=0`, `auto="light"`, DSPy `3.2.0`, and the paid model pair above reproduce the refreshed comparison path. `run.py` now hardens both the task LM and reflection LM for retries, and GEPA checkpoints to `gepa_logs/gepa_state.bin`. Delete `gepa_logs/` and use a fresh `DSPY_CACHEDIR` before cross-version reruns if you want a clean compile instead of a resume or cache replay.

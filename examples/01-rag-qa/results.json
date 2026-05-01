@@ -5,10 +5,10 @@
   "seed": 0,
   "trainset_size": 15,
   "valset_size": 10,
-  "baseline_score": 75.77,
+  "baseline_score": 80.47,
   "optimized_score": 100.0,
-  "improvement": 24.230000000000004,
-  "baseline_seconds": 22.8,
-  "optimize_seconds": 839.9,
+  "improvement": 19.53,
+  "baseline_seconds": 12.6,
+  "optimize_seconds": 829.4,
   "eval_seconds": 0.0
 }

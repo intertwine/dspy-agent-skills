@@ -68,11 +68,11 @@ Three runnable demos under [`examples/`](examples/) exercise every skill against
 
 | Example | Artifact DSPy | Task LM | Baseline | Optimized | Δ | Status |
 |---|---|---|---:|---:|---:|---|
-| [01-rag-qa](examples/01-rag-qa/) | 3.2.0 | Ministral 3B 2512 | 75.77 | **100.00** | **+24.23** | Refreshed on 2026-04-21 |
+| [01-rag-qa](examples/01-rag-qa/) | 3.2.0 | Ministral 3B 2512 | 80.47 | **100.00** | **+19.53** | Clean comparison refreshed on 2026-04-28 |
 | [02-math-reasoning](examples/02-math-reasoning/) | 3.2.0 | Ministral 3B 2512 | 85.00 | **93.33** | **+8.33** | Refreshed on 2026-04-21 |
 | [03-invoice-extraction](examples/03-invoice-extraction/) | 3.1.3 | Liquid LFM 2.5 1.2B (free) | 0.833 | **0.931** | **+0.098** | Historical artifact retained |
 
-The refreshed `01` and `02` artifacts use the paid pair `openrouter/mistralai/ministral-3b-2512` + `openrouter/qwen/qwen3-30b-a3b-instruct-2507`. `03` stays on its historical DSPy `3.1.3` artifact because the DSPy `3.2.0` probe sweep either saturated immediately (`gemma-3-4b-it`, `ministral-3b-2512`, `ministral-8b-2512`) or became too noisy to trust for typed extraction (`llama-3.2-1b-instruct`). See [`examples/README.md`](examples/README.md) and each example's `version_comparison.md` for the exact commands and caveats.
+The refreshed `01` and `02` artifacts use the paid pair `openrouter/mistralai/ministral-3b-2512` + `openrouter/qwen/qwen3-30b-a3b-instruct-2507`. `03` stays on its historical DSPy `3.1.3` artifact because a clean DSPy `3.2.0` baseline on the same Liquid/Nemotron pair already reached `0.944`, leaving little useful headroom for a replacement GEPA artifact. See [`examples/README.md`](examples/README.md) and each example's `version_comparison.md` for the exact commands and caveats.
 
 ## Grounding
 
