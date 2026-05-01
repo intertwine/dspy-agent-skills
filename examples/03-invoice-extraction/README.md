@@ -22,7 +22,9 @@ GEPA accepted **5 mutations** (candidate pool 6). Candidate 5 at iteration 22 la
 
 ## DSPy 3.2.0 status
 
-This example intentionally still ships the historical DSPy `3.1.3` artifact. The DSPy `3.2.0` refresh pass did revalidate the codepath and rerun the model sweep, but it did not force a new committed artifact because the credible options all failed in one of two ways:
+This example intentionally still ships the historical DSPy `3.1.3` artifact. The 2026-04-28 refresh reran the historical Liquid/Nemotron path from clean temporary state. The clean DSPy `3.1.3` GEPA probe found a `0.944` full-valset candidate but was interrupted at `162/416` rollouts after `28m29s`; the clean DSPy `3.2.0` baseline on the same model pair already scored `0.944`, leaving little honest headroom for a replacement optimized artifact.
+
+Earlier DSPy `3.2.0` model sweeps also failed to produce a better artifact for one of two reasons:
 
 | Probe | Result | Why it did not become the committed DSPy 3.2.0 artifact |
 |---|---:|---|
@@ -91,7 +93,7 @@ DSPY_TASK_MODEL=openrouter/liquid/lfm-2.5-1.2b-instruct:free \
 
 ## Why this one still points at Liquid 1.2B
 
-The 3.2.0 sweep reinforced the same lesson more strongly than before: invoice extraction is now easy enough that many current 3B-8B models saturate the benchmark outright. The only smaller paid model that left real headroom during this refresh also degraded typed-output reliability enough to make the optimize run misleading. Until that changes, the historical Liquid 1.2B artifact remains the clearest demonstration of GEPA headroom on this task.
+The 3.2.0 sweep reinforced the same lesson more strongly than before: invoice extraction is now easy enough that many current 3B-8B models saturate the benchmark outright. The clean Liquid rerun now shows the same issue on the historical model pair: DSPy `3.2.0` baseline alone reached `0.944`. Until the dataset gets harder or a more reliable non-saturated model target is selected, the completed historical Liquid 1.2B artifact remains the clearest demonstration of GEPA headroom on this task.
 
 ## Gotchas (patched)
 
@@ -102,4 +104,4 @@ Two non-obvious issues surfaced during validation; both are fixed in the committ
 
 ## Reproducibility
 
-`seed=0`, `auto="light"`, and the free-tier Liquid/Nemotron pair still reproduce the historical artifact in principle, though the run can hit OpenRouter's daily cap. DSPy `3.2.0` itself is not the blocker here; the blocker is finding a current paid task model that is both non-saturated and reliable enough on typed outputs to deserve a new committed artifact.
+`seed=0`, `auto="light"`, and the free-tier Liquid/Nemotron pair still reproduce the historical artifact in principle, though the run can hit OpenRouter's daily cap and may spend substantial time on malformed typed-output candidates. For clean cross-version probes, delete `gepa_logs/` and set a fresh `DSPY_CACHEDIR` per DSPy version; this refresh used disposable uv environments rather than `.venv-dspy313` / `.venv-dspy320`.

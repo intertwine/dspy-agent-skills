@@ -1,16 +1,16 @@
 # DSPy Agent Skills — Examples
 
-Three runnable end-to-end examples that exercise the skills against real, reproducible tasks. The current committed artifacts mix refreshed DSPy `3.2.0` reruns with one retained historical DSPy `3.1.3` artifact where the current OpenRouter model sweep either saturated immediately or became too unstable for a credible typed-output rerun.
+Three runnable end-to-end examples that exercise the skills against real, reproducible tasks. The current committed artifacts mix refreshed DSPy `3.2.0` reruns with one retained historical DSPy `3.1.3` artifact where clean DSPy `3.2.0` probing left too little honest headroom for a replacement typed-output artifact.
 
 ## Current committed artifacts
 
 | Example | Artifact DSPy | Task LM | Reflection LM | Baseline | Optimized | Δ | Status |
 |---|---|---|---|---:|---:|---:|---|
-| [01-rag-qa](01-rag-qa/) | 3.2.0 | `openrouter/mistralai/ministral-3b-2512` | `openrouter/qwen/qwen3-30b-a3b-instruct-2507` | 75.77 | **100.00** | **+24.23** | Refreshed on 2026-04-21 |
+| [01-rag-qa](01-rag-qa/) | 3.2.0 | `openrouter/mistralai/ministral-3b-2512` | `openrouter/qwen/qwen3-30b-a3b-instruct-2507` | 80.47 | **100.00** | **+19.53** | Clean comparison refreshed on 2026-04-28 |
 | [02-math-reasoning](02-math-reasoning/) | 3.2.0 | `openrouter/mistralai/ministral-3b-2512` | `openrouter/qwen/qwen3-30b-a3b-instruct-2507` | 85.00 | **93.33** | **+8.33** | Refreshed on 2026-04-21 |
 | [03-invoice-extraction](03-invoice-extraction/) | 3.1.3 | `openrouter/liquid/lfm-2.5-1.2b-instruct:free` | `openrouter/nvidia/nemotron-3-super-120b-a12b:free` | 0.833 | **0.931** | **+0.098** | Historical artifact retained |
 
-The `01` and `02` reruns were done with DSPy `3.2.0`, `auto="light"`, `seed=0`, and a faster paid model pair that still left real GEPA headroom. `03` intentionally remains on its historical artifact: the DSPy `3.2.0` probe sweep found either saturation (`gemma-3-4b-it`, `ministral-3b-2512`, `ministral-8b-2512`) or unstable typed-output behavior (`llama-3.2-1b-instruct`).
+The `01` and `02` reruns were done with DSPy `3.2.0`, `auto="light"`, `seed=0`, and a faster paid model pair that still left real GEPA headroom. `03` intentionally remains on its historical artifact: the clean DSPy `3.1.3` GEPA probe found a strong candidate but did not complete, and the clean DSPy `3.2.0` baseline on the same model pair already matched that best observed score.
 
 ## Version comparisons
 
@@ -90,7 +90,7 @@ env -u UV_EXCLUDE_NEWER \
   python run.py --optimize --auto light --seed 0
 
 # Example 03 intentionally has no refreshed DSPy 3.2.0 artifact yet.
-# See 03-invoice-extraction/version_comparison.md for the probe sweep.
+# See 03-invoice-extraction/version_comparison.md for the clean baseline/probe notes.
 ```
 
 Clear `gepa_logs/` before cross-version reruns; otherwise GEPA will resume from the previous saved state instead of starting from a clean DSPy `3.2.0` run.
