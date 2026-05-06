@@ -55,6 +55,16 @@ def test_plugin_name_matches_marketplace_entry():
     )
 
 
+def test_plugin_version_matches_marketplace_entry():
+    plugin = json.loads(PLUGIN_MANIFEST.read_text())
+    market = json.loads(MARKETPLACE_MANIFEST.read_text())
+    entries = {p["name"]: p for p in market["plugins"]}
+    entry = entries[plugin["name"]]
+    assert entry.get("version") == plugin.get("version"), (
+        "marketplace.json plugin version must match .claude-plugin/plugin.json"
+    )
+
+
 @pytest.mark.parametrize("path", [PLUGIN_MANIFEST, MARKETPLACE_MANIFEST])
 def test_json_is_strict(path: Path):
     # Ensure no trailing commas / comments that would break strict JSON parsers.

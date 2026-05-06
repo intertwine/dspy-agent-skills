@@ -38,10 +38,10 @@ cd skills/dspy-advanced-workflow
 OPENAI_API_KEY=... uv run --with dspy python example_pipeline.py --auto light
 ```
 
-If `uv run --with dspy` unexpectedly resolves DSPy `3.1.3`, check for `UV_EXCLUDE_NEWER` or another resolver policy that hides recent uploads. For an exact DSPy 3.2.0 validation run, use:
+If `uv run --with dspy` unexpectedly resolves DSPy `3.1.3`, check for `UV_EXCLUDE_NEWER` or another resolver policy that hides recent uploads. For the current DSPy 3.2.1 smoke-validation run, use:
 
 ```bash
-env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 python -c 'import dspy; print(dspy.__version__)'
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.1 python -c 'import dspy; print(dspy.__version__)'
 ```
 
 ## Authoring / editing conventions

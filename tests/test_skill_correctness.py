@@ -21,8 +21,8 @@ and caught it in external review. Each guard maps to a specific pitfall:
    that claim, and the dry-run smoke-test loop depends on it.
 6. `docs/usage.md` must list every per-skill `example_*.py` command that
    contributors are expected to keep runnable.
-7. Installation docs must reflect the actual example runtime path — DSPy
-   3.2.0, `OPENROUTER_API_KEY` for the end-to-end examples, and the
+7. Installation docs must reflect the current smoke-test runtime path — DSPy
+   3.2.1, `OPENROUTER_API_KEY` for the end-to-end examples, and the
    `UV_EXCLUDE_NEWER` troubleshooting note we validated locally.
 8. Release-status docs must not regress to claiming all committed example
    artifacts are still historical DSPy 3.1.3 runs after the 3.2 refresh.
@@ -290,7 +290,7 @@ def test_usage_doc_lists_every_skill_example():
 
 
 def test_installation_doc_matches_example_runtime():
-    """The install guide should point example runners at DSPy 3.2.0 + OpenRouter."""
+    """The install guide should point example runners at DSPy 3.2.1 + OpenRouter."""
     text = _read(DOCS / "installation.md")
     assert "dspy-ai>=3.1.0" not in text, (
         "`docs/installation.md` still mentions the stale `dspy-ai>=3.1.0` "
@@ -300,12 +300,12 @@ def test_installation_doc_matches_example_runtime():
         "`docs/installation.md` should mention `OPENROUTER_API_KEY` for the "
         "end-to-end examples under `examples/`."
     )
-    assert ('"dspy==3.2.0"' in text or "`dspy==3.2.0`" in text or "pip install dspy" in text), (
-        "`docs/installation.md` should show the tested DSPy 3.2.0 install path."
-    )
+    assert (
+        '"dspy==3.2.1"' in text or "`dspy==3.2.1`" in text or "pip install dspy" in text
+    ), "`docs/installation.md` should show the tested DSPy 3.2.1 install path."
     assert "UV_EXCLUDE_NEWER" in text, (
         "`docs/installation.md` should document the `UV_EXCLUDE_NEWER` gotcha "
-        "that can hide DSPy 3.2.0 from `uv run --with dspy`."
+        "that can hide DSPy 3.2.1 from `uv run --with dspy`."
     )
 
 
@@ -351,9 +351,7 @@ def test_example_status_docs_reflect_the_3_2_refresh():
 def test_rag_qa_results_match_clean_3_2_comparison():
     """The RAG docs should agree on the clean DSPy 3.2.0 comparison numbers."""
     results = _read_json(REPO / "examples" / "01-rag-qa" / "results.json")
-    comparison = _read_json(
-        REPO / "examples" / "01-rag-qa" / "version_comparison.json"
-    )
+    comparison = _read_json(REPO / "examples" / "01-rag-qa" / "version_comparison.json")
     clean_3_2 = next(
         run for run in comparison["runs"] if run["label"] == "clean_dspy_3_2_0"
     )

@@ -1,6 +1,18 @@
 # Changelog
 
-## v0.2.2 — Unreleased
+## v0.2.2 — 2026-05-06
+
+### Release metadata
+
+- Bumped Claude plugin and marketplace manifests to `0.2.2` so the published package version matches the refreshed docs/artifacts.
+- Updated top-level install/maintenance docs for the current DSPy `3.2.1` smoke-test path while preserving per-example artifact provenance for committed `3.2.0` and historical `3.1.3` runs.
+- Added a manifest regression guard that fails if `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` drift to different versions.
+
+### DSPy 3.2.1 validation
+
+- Confirmed PyPI latest is DSPy `3.2.1` (released 2026-05-05); upstream release notes describe this as a bugfix/dependency/doc release, not a new skill-facing API surface.
+- All 6 skill-local `example_*.py --dry-run` scripts constructed successfully under `env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.1 ...`.
+- All 3 end-to-end `examples/*/run.py --dry-run` scripts constructed successfully under DSPy `3.2.1` with their offline dependencies.
 
 ### Example artifacts
 

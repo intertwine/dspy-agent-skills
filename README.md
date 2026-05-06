@@ -4,13 +4,13 @@
 
 **Production-grade DSPy 3.2.x skills for coding agents.** A synthesized, spec-compliant pack of five agent skills that turns Claude Code, Codex CLI, and any other [agentskills.io](https://agentskills.io)-compatible agent into a DSPy expert.
 
-- ✅ Validated against DSPy 3.2.0 (the real API, not inferred from stale docs)
+- ✅ Validated against DSPy 3.2.1 (the real installed package; committed live artifacts keep their recorded DSPy versions)
 - ✅ Single source of truth for both **Claude Code** and **Codex CLI**
 - ✅ Progressive disclosure (short `SKILL.md` + deep `reference.md`)
 - ✅ Runnable `example_*.py` scripts with offline `--dry-run`
 - ✅ Includes a DSPy 3.2.0 `BetterTogether` chaining example
 - ✅ Plugin manifest + marketplace manifest for one-click install
-- ✅ 80 validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
+- ✅ 90+ validation tests (frontmatter spec, JSON schema, Python AST, skill-doc correctness guards)
 
 ## What's inside
 
@@ -96,15 +96,17 @@ cd skills/dspy-advanced-workflow
 OPENAI_API_KEY=... uv run --with dspy python example_pipeline.py --auto light
 ```
 
-If `uv run --with dspy` resolves DSPy `3.1.3` instead of `3.2.0`, check whether `UV_EXCLUDE_NEWER` or a stale package mirror is hiding the new release. The exact 3.2.0 override we validated for this repo is:
+If `uv run --with dspy` resolves DSPy `3.1.3` instead of current `3.2.x`, check whether `UV_EXCLUDE_NEWER` or a stale package mirror is hiding the new release. The current 3.2.1 smoke-validation override is:
 
 ```bash
-env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.0 python -c 'import dspy; print(dspy.__version__)'
+env -u UV_EXCLUDE_NEWER uv run --with dspy==3.2.1 python -c 'import dspy; print(dspy.__version__)'
 ```
+
+Use the per-example READMEs for exact live artifact reproduction; those commands remain pinned to the DSPy version recorded in each committed artifact.
 
 ## Compatibility
 
-- **DSPy**: 3.2.x (tested against 3.2.0)
+- **DSPy**: 3.2.x (smoke-tested against 3.2.1; committed live artifacts document 3.2.0/3.1.3 provenance)
 - **Claude Code**: current (skill spec as of 2026-04-17)
 - **Codex CLI**: current Agent Skills format
 - **Python**: 3.10+
@@ -131,7 +133,7 @@ dspy-agent-skills/
 
 ## Version
 
-**v0.2.1** • Targets DSPy 3.2.x
+**v0.2.2** • Targets DSPy 3.2.x
 
 ## License
 
