@@ -27,6 +27,8 @@ Call as `evaluator(program)` → `EvaluationResult`. Read the aggregate via `.sc
 
 ## `dspy.GEPA`
 
+Most-used params; see [`dspy-gepa-optimizer/reference.md`](../dspy-gepa-optimizer/reference.md) for the full surface.
+
 ```python
 dspy.GEPA(
     metric: GEPAFeedbackMetric,
@@ -120,7 +122,7 @@ Always start with `"light"`. If it shows no movement, the problem is usually the
 | Check | What to look for |
 |---|---|
 | Metric feedback quality | Run metric on 5 failing examples manually; if feedback is vague ("incorrect"), GEPA has nothing to learn from |
-| `reflection_minibatch_size` | Default is 3; with baseline >0.7, GEPA may sample all-correct subsets. Raise to 6–8 |
+| `reflection_minibatch_size` | **Symptom: plateau / no improvement.** Default is 3; with baseline >0.7, GEPA may sample all-correct subsets and never invoke reflection. Raise to 6–8. (If the symptom is *oscillation* between candidates instead, *lower* to 2 — see `dspy-gepa-optimizer/reference.md`.) |
 | Train/val overlap | Deduplicate `trainset` and `valset`; shared examples cause memorization |
 | `reflection_lm` strength | Must be capable enough to critique and propose better instructions; a 7B model reflecting on a 70B model's output rarely helps |
 | Model saturation | Baseline >0.95 means GEPA correctly no-ops; use a weaker task LM or harder evaluation set |

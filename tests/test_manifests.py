@@ -64,8 +64,8 @@ def test_version_consistent_across_manifests():
     plugin_ver = plugin["version"]
     market_ver = market["plugins"][0]["version"]
 
-    m = re.search(r"\*\*v(\d+\.\d+\.\d+)\*\*", readme)
-    assert m, "README.md does not contain a **vX.Y.Z** version string."
+    m = re.search(r"## Version\s+\*\*v(\d+\.\d+\.\d+)\*\*", readme)
+    assert m, "README.md does not contain a **vX.Y.Z** version string under ## Version."
     readme_ver = m.group(1)
 
     assert plugin_ver == market_ver, (
